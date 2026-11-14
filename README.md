@@ -127,6 +127,27 @@ flutter run -d chrome
 flutter build web --release
 ```
 
+## Deploy to Netlify
+
+The root-level `netlify.toml` configures the Netlify Flutter build plugin to
+install the stable Flutter SDK, build the release web app, publish `build/web`,
+and route client-side paths back to `index.html`. The plugin is pinned in the
+root `package.json`/`package-lock.json`. In the Netlify site settings, connect
+this repository (`poopathiraja504-cloud/SRIT-Plus`) and use the `main` branch.
+Leave the build command and publish directory inherited from `netlify.toml`,
+or set them to the same values:
+
+```text
+Build command: flutter build web --release
+Publish directory: build/web
+```
+
+After pushing changes, Netlify should start a deploy automatically. If not,
+trigger one in Netlify (Deploys → Trigger deploy → Deploy site). Successful
+build output must contain
+`build/web/index.html`. Flutter build output is intentionally excluded from
+Git; Netlify generates it from the committed Flutter sources on every deploy.
+
 Build iOS on macOS with Xcode:
 
 ```sh
