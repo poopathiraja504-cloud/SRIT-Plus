@@ -13,6 +13,8 @@ import '../providers/campus_content_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/push_notification_service.dart';
 import '../widgets/brand_mark.dart';
+import '../widgets/official_srit_gallery.dart';
+import 'web_portal_shell.dart';
 import 'campus_pages.dart';
 import 'website_screen.dart';
 
@@ -193,6 +195,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return WebPortalShell(
+        homeBuilder: (onSelectSection) => DashboardHome(
+          onSelectSection: onSelectSection,
+          onOpenWebsite: _openWebsiteFromHome,
+        ),
+        onSignOut: _signOut,
+        onEnableNotifications: _enableNotifications,
+        initialSection: _selectedSection,
+      );
+    }
+
     final user = AuthService().currentUser;
     final selectedTitle = _selectedSection?.title ?? 'Home';
     final isCompact = MediaQuery.sizeOf(context).width < 700;
@@ -531,6 +545,10 @@ class DashboardHome extends StatelessWidget {
                   sections: campusSections,
                   onSelectSection: onSelectSection,
                 ),
+                if (kIsWeb) ...[
+                  const SizedBox(height: 28),
+                  const OfficialSritGallery(),
+                ],
                 const SizedBox(height: 28),
                 _PortalFooter(onOpenWebsite: onOpenWebsite),
               ],

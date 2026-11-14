@@ -122,13 +122,25 @@ apps.
 
 ## Campus information and branding
 
-The current official SRIT website is `https://www.sritcbe.ac.in/`. Campus
-pages link to official SRIT information for programmes, departments,
-facilities, management, placement and contact details. The campus background,
-SRIT emblem, principal portrait and Google mark used in the interface are
-local image assets sourced from their respective official sites. The campus
-background is a 1920 × 1080 optimized image. The app icon sets and web favicon
-use the official SRIT emblem.
+Campus pages link to official SRIT information for programmes, departments,
+facilities, management, placement and contact details. The web login uses an
+official SRIT campus photograph from `https://www.srit.org/`; the browser loads
+a responsive WebP variant (1600 or 3200 pixels wide) and uses the 6720 × 4392
+original on larger displays. If the remote image is unavailable, the web page
+falls back to the local 1920 × 1080 campus image. Android and iOS continue to
+use that local image. The carousel uses official SRIT facilities and event
+photographs. The SRIT emblem, principal portrait and Google mark are local
+assets sourced from their respective official sites. The app icon sets and
+web favicon use the official SRIT emblem.
+
+On web, the dashboard has a collapsible desktop sidebar and mobile drawer.
+Portal pages use the `?page=` query parameter so refreshing a page remains
+within the Flutter single-page app; browser Back and Forward update the active
+page. Profile details come from the authenticated Firebase Auth user. Profile
+editing updates the Auth display name and photo URL; image uploads are not
+configured. The current Firebase project has no approved student-record
+source, so register number, department, attendance, marks, results and
+timetables are explicitly unavailable rather than fabricated.
 
 On supported Android browsers, the website offers the browser's native PWA
 install prompt and falls back to browser-menu instructions when that prompt is
@@ -136,9 +148,11 @@ unavailable. On iPhone and iPad, it explains Safari's Share → Add to Home
 Screen flow. Standalone installations do not show the banner, and dismissals
 are remembered by the browser. No verified Play Store or App Store listing is
 configured, so the website does not link to an unpublished native app.
-Flutter's generated web service worker caches the app shell; authentication,
-Firestore content and push delivery still require their respective online
-services.
+Flutter's generated web service worker behavior depends on the Flutter SDK
+version and deployment toolchain; it may cache the app shell or be a
+self-unregistering stub. The Firebase Messaging worker is separately
+configured for web push. Authentication, Firestore content, remote campus
+photographs and push delivery still require their respective online services.
 
 Firebase Authentication currently provides Google sign-in and
 email/password accounts. Email/password and Firebase password reset are for

@@ -35,6 +35,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
   bool _isDismissed = false;
   bool _canInstall = false;
   bool _isPrompting = false;
+  bool _isAwaitingInstallConfirmation = false;
 
   @override
   void initState() {
@@ -63,6 +64,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
     _isInstalled = _isStandalone().toDart;
     _isDismissed = _wasInstallDismissed().toDart;
     _canInstall = _canPromptInstall().toDart;
+    if (_isInstalled) _isAwaitingInstallConfirmation = false;
   }
 
   void _dismiss() {
@@ -77,7 +79,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
       if (!mounted) return;
       setState(() {
         _isPrompting = false;
-        if (outcome == 'accepted') _isInstalled = true;
+        _isAwaitingInstallConfirmation = outcome == 'accepted' && !_isInstalled;
         _canInstall = _canPromptInstall().toDart;
       });
       if (outcome == 'error') {
@@ -90,11 +92,16 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
     }
 
     await _showInstructions(
-      title: 'Install SRIT Plus on Android',
+      title: 'Android installation prompt unavailable',
       steps: const [
-        'In Chrome, open the menu (⋮).',
-        'Choose Install app or Add to Home screen.',
-        'Confirm the browser prompt to add SRIT Plus.',
+        'Chrome has not provided the beforeinstallprompt event on this visit, '
+            'so this button cannot open a native install prompt right now.',
+        'The browser does not disclose a more specific reason. Check that you '
+            'are using Chrome on Android, the site is open over HTTPS, and '
+            'SRIT Plus is not already installed.',
+        'You can still open Chrome’s menu (⋮), choose Install app or Add to '
+            'Home screen, and follow the browser instructions if that option '
+            'is available.',
       ],
     );
   }
@@ -176,7 +183,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
                   'assets/images/srit_logo.png',
                   width: 46,
                   height: 46,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                 ),
               ),
               const SizedBox(width: 12),
@@ -187,7 +194,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
                   children: [
                     Text(
                       isAndroid
-                          ? 'Official SRIT Plus App'
+                          ? 'Install SRIT Plus App'
                           : isIPad
                           ? 'Install SRIT Plus on Your iPad'
                           : 'Install SRIT Plus on Your iPhone',
@@ -199,9 +206,8 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
                     const SizedBox(height: 3),
                     Text(
                       isAndroid
-                          ? 'Get the SRIT portal on Android. Explore academics, '
-                                'campus information and available student '
-                                'services.'
+                          ? 'Get faster access to academics, attendance, '
+                                'results and college notifications.'
                           : 'Access your college portal directly from your '
                                 'Home Screen.',
                       maxLines: 3,
@@ -218,7 +224,8 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
                       runSpacing: 4,
                       children: [
                         FilledButton(
-                          onPressed: _isPrompting
+                          onPressed:
+                              _isPrompting || _isAwaitingInstallConfirmation
                               ? null
                               : isAndroid
                               ? _installOrExplain
@@ -227,6 +234,8 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
                             isAndroid
                                 ? _isPrompting
                                       ? 'Opening…'
+                                      : _isAwaitingInstallConfirmation
+                                      ? 'Confirming installation…'
                                       : 'Install App'
                                 : 'Add to Home Screen',
                           ),
