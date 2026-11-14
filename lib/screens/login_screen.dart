@@ -94,6 +94,16 @@ class _LoginScreenState extends State<LoginScreen> {
               ],
             ),
             const SizedBox(height: 18),
+            Text(
+              'Email and password are for your SRIT Plus account; they do not '
+              'change or use your college email password.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: const Color(0xFF65758A),
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 14),
             TextFormField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
@@ -217,30 +227,11 @@ class _GoogleLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Image.asset(
+      'assets/images/google_g_logo.png',
       width: 22,
       height: 22,
-      child: Center(
-        child: ShaderMask(
-          shaderCallback: (bounds) => const LinearGradient(
-            colors: [
-              Color(0xFF4285F4),
-              Color(0xFF34A853),
-              Color(0xFFFBBC05),
-              Color(0xFFEA4335),
-              Color(0xFF4285F4),
-            ],
-          ).createShader(bounds),
-          child: const Text(
-            'G',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 21,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ),
-      ),
+      semanticLabel: 'Google',
     );
   }
 }

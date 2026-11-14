@@ -63,6 +63,11 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+    - assets/images/srit_campus_background.jpg
+    - assets/images/srit_principal.jpg
+    - assets/images/srit_logo.png
+    - assets/images/google_g_logo.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

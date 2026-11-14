@@ -70,7 +70,7 @@ void main() {
         'Vision',
         'Mission',
         'Management',
-        'Chairman Message',
+        'Managing Trustee',
         'Principal Message',
         'College History',
         'Campus Overview',
@@ -93,4 +93,36 @@ void main() {
       ]),
     );
   });
+
+  test(
+    'official department pages are available for each listed department',
+    () {
+      const requiredTopics = {
+        'Vision',
+        'Mission',
+        'Courses and curriculum',
+        'Faculty, laboratories and research',
+        'Achievements and events',
+        'Department contact',
+      };
+      expect(
+        sritDepartmentSections.map((section) => section.title),
+        containsAll([
+          'Computer Science and Engineering',
+          'Electronics and Communication Engineering',
+          'Electrical and Electronics Engineering',
+          'Mechanical Engineering',
+          'Information Technology',
+          'Artificial Intelligence and Data Science',
+        ]),
+      );
+      for (final section in sritDepartmentSections) {
+        expect(section.actionUri?.scheme, 'https');
+        expect(
+          section.highlights.map((highlight) => highlight.title),
+          containsAll(requiredTopics),
+        );
+      }
+    },
+  );
 }

@@ -56,7 +56,9 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     return AuthPageShell(
       title: 'Create your account',
-      subtitle: 'Get started with your SRIT Plus account',
+      subtitle:
+          'Create an SRIT Plus account. This is separate from your college '
+          'email account.',
       child: Form(
         key: _formKey,
         child: Column(

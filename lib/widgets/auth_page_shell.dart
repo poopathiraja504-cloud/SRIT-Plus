@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../services/campus_links.dart';
 import 'brand_mark.dart';
 
 class AuthPageShell extends StatelessWidget {
@@ -23,18 +22,9 @@ class AuthPageShell extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.network(
-            sritCampusImage,
+          Image.asset(
+            'assets/images/srit_campus_background.jpg',
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => const DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF164477), Color(0xFF091A31)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-            ),
           ),
           const DecoratedBox(
             decoration: BoxDecoration(

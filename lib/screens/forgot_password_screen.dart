@@ -49,7 +49,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return AuthPageShell(
       title: 'Reset your password',
-      subtitle: 'We will email you a link to choose a new password',
+      subtitle:
+          'We will email you a link to reset your SRIT Plus password. This '
+          'does not change your college email password.',
       child: _emailSent
           ? Column(
               children: [

@@ -90,13 +90,27 @@ dashboard restores the signed-in user on launch.
 
 ## Campus information and branding
 
-The SRIT website is `https://www.sritcbe.ac.in/`. Native platforms use
-`webview_flutter`; web uses an embedded browser frame and offers an open-in-new
-tab action. Some websites block embedding in browsers. In that case, use the
-web page's open-in-browser action. Campus photos load from the official SRIT
-website and use a gradient fallback when unavailable. The displayed SRIT mark
-is a branded monogram; replace `BrandMark` with an approved logo asset if one
-is provided.
+The current official SRIT website is `https://www.sritcbe.ac.in/`. Campus
+pages link to official SRIT information for programmes, departments,
+facilities, management, placement and contact details. The campus background,
+SRIT emblem, principal portrait and Google mark used in the interface are
+local image assets sourced from their respective official sites. The campus
+background is a 1920 × 1080 optimized image. The app icon sets and web favicon
+use the official SRIT emblem.
+
+Firebase Authentication currently provides Google sign-in and
+email/password accounts. Email/password and Firebase password reset are for
+SRIT Plus accounts; they do not authenticate or reset institutional Google
+Workspace passwords. Google sign-in is not restricted to an administrator-
+approved SRIT Workspace domain or allowlist in this project. Configure the
+institution-approved eligibility policy before presenting it as
+SRIT-exclusive. No student-record system or approved schema is configured;
+personal attendance, marks, fees and timetable records are therefore not
+displayed.
+
+Native platforms use `webview_flutter`; web uses an embedded browser frame and
+offers an open-in-new-tab action. Some websites block embedding in browsers.
+In that case, use the web page's open-in-browser action.
 
 The fee-payment action currently points to the SRIT website because a verified
 direct payment URL is not configured. Update `sritFeePortal` in

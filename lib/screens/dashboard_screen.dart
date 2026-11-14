@@ -59,6 +59,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final user = AuthService().currentUser;
     final selectedTitle = _selectedSection?.title ?? 'Home';
+    final isCompact = MediaQuery.sizeOf(context).width < 700;
+    final selectedNavigationIndex = switch (selectedTitle) {
+      'Programs and Courses' => 1,
+      'Attendance' => 2,
+      'Student Profile' => 3,
+      _ => 0,
+    };
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -169,6 +176,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 section: _selectedSection!,
               ),
       ),
+      bottomNavigationBar: isCompact
+          ? NavigationBar(
+              selectedIndex: selectedNavigationIndex,
+              onDestinationSelected: (index) {
+                final title = switch (index) {
+                  1 => 'Programs and Courses',
+                  2 => 'Attendance',
+                  3 => 'Student Profile',
+                  _ => null,
+                };
+                setState(
+                  () => _selectedSection = title == null
+                      ? null
+                      : campusSections.firstWhere(
+                          (section) => section.title == title,
+                        ),
+                );
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.home_outlined),
+                  selectedIcon: Icon(Icons.home_rounded),
+                  label: 'Home',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.menu_book_outlined),
+                  selectedIcon: Icon(Icons.menu_book_rounded),
+                  label: 'Academics',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.fact_check_outlined),
+                  selectedIcon: Icon(Icons.fact_check_rounded),
+                  label: 'Student',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.account_circle_outlined),
+                  selectedIcon: Icon(Icons.account_circle_rounded),
+                  label: 'Profile',
+                ),
+              ],
+            )
+          : null,
     );
   }
 
@@ -318,7 +367,7 @@ class DashboardHome extends StatelessWidget {
                 const SizedBox(height: 28),
                 _SectionHeading(title: 'Department highlights'),
                 const SizedBox(height: 13),
-                const _DepartmentHighlights(),
+                _DepartmentHighlights(onSelectSection: onSelectSection),
                 const SizedBox(height: 24),
                 _FactsStrip(
                   onTap: () => onSelectSection(
@@ -327,6 +376,19 @@ class DashboardHome extends StatelessWidget {
                     ),
                   ),
                 ),
+                const SizedBox(height: 28),
+                const _SectionHeading(title: 'About SRIT'),
+                const SizedBox(height: 13),
+                _InstitutionOverview(onOpenWebsite: onOpenWebsite),
+                const SizedBox(height: 28),
+                _SectionHeading(title: 'Explore college life'),
+                const SizedBox(height: 13),
+                _CampusSectionGrid(
+                  sections: campusSections,
+                  onSelectSection: onSelectSection,
+                ),
+                const SizedBox(height: 28),
+                _PortalFooter(onOpenWebsite: onOpenWebsite),
               ],
             ),
           ),
@@ -351,8 +413,8 @@ class _HeroBanner extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(
-              sritCampusImage,
+            Image.asset(
+              'assets/images/srit_campus_background.jpg',
               fit: BoxFit.cover,
               errorBuilder: (_, _, _) => const ColoredBox(
                 color: Color(0xFF123B72),
@@ -620,31 +682,74 @@ class _QuickLinks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final quickSections = [
-      campusSections.first,
-      campusSections.firstWhere((section) => section.title == 'Admission'),
-      campusSections.firstWhere((section) => section.title == 'Placement'),
-      campusSections.firstWhere(
-        (section) => section.title == 'Online Fee Payment',
-      ),
+    const titles = [
+      'Academics',
+      'Admission',
+      'Placement',
+      'Online Fee Payment',
+      'Attendance',
+      'Internal Marks',
+      'Exam Results',
+      'Timetable',
+      'Study Materials',
+      'Library',
+      'Internships',
+      'Student Profile',
     ];
+    final quickSections = titles
+        .map(
+          (title) => campusSections.firstWhere(
+            (section) => section.title == title,
+          ),
+        )
+        .toList(growable: false);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 700 ? 4 : 2;
+        return _CampusSectionGrid(
+          sections: quickSections,
+          onSelectSection: onSelectSection,
+          width: constraints.maxWidth,
+        );
+      },
+    );
+  }
+}
+
+class _CampusSectionGrid extends StatelessWidget {
+  const _CampusSectionGrid({
+    required this.sections,
+    required this.onSelectSection,
+    this.width,
+  });
+
+  final List<CampusSection> sections;
+  final ValueChanged<CampusSection> onSelectSection;
+  final double? width;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = width ?? constraints.maxWidth;
+        final columns = availableWidth >= 900
+            ? 4
+            : availableWidth >= 600
+            ? 3
+            : 2;
         return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: quickSections.length,
+          itemCount: sections.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: columns,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-            childAspectRatio: 2.45,
+            mainAxisExtent: 76,
           ),
           itemBuilder: (context, index) {
-            final section = quickSections[index];
+            final section = sections[index];
             return Material(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(17),
               child: InkWell(
                 borderRadius: BorderRadius.circular(17),
@@ -660,6 +765,8 @@ class _QuickLinks extends StatelessWidget {
                           section.title == 'Online Fee Payment'
                               ? 'Fee Payment'
                               : section.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -695,9 +802,8 @@ class _PrincipalCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.network(
-                'https://cdn.prod.website-files.com/69ba31e796b16c01f4b12199/'
-                '6a683ff708e061caa75b1adf_SRIT%20Principal%20Image.png',
+              child: Image.asset(
+                'assets/images/srit_principal.jpg',
                 width: 76,
                 height: 88,
                 fit: BoxFit.cover,
@@ -774,48 +880,218 @@ class _PrincipalMessageLink extends StatelessWidget {
 }
 
 class _DepartmentHighlights extends StatelessWidget {
-  const _DepartmentHighlights();
+  const _DepartmentHighlights({required this.onSelectSection});
+
+  final ValueChanged<CampusSection> onSelectSection;
 
   @override
   Widget build(BuildContext context) {
-    const departments = [
-      ('Computer Science & Engineering', Icons.computer_rounded),
-      ('Electronics & Communication', Icons.memory_rounded),
-      ('Electrical & Electronics', Icons.electric_bolt_rounded),
-      ('Mechanical Engineering', Icons.precision_manufacturing_rounded),
-      ('Information Technology', Icons.devices_rounded),
-    ];
     return SizedBox(
       height: 128,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: departments.length,
+        itemCount: sritDepartmentSections.length,
         separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
-          final (name, icon) = departments[index];
+          final department = sritDepartmentSections[index];
           return SizedBox(
-            width: 150,
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Icon(icon, color: const Color(0xFF2467CF), size: 24),
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
+            width: 170,
+            child: Material(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(20),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () => onSelectSection(department),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Icon(
+                        department.icon,
+                        color: department.color,
+                        size: 24,
                       ),
-                    ),
-                  ],
+                      Text(
+                        department.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _InstitutionOverview extends StatelessWidget {
+  const _InstitutionOverview({required this.onOpenWebsite});
+
+  final VoidCallback onOpenWebsite;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Sri Ramakrishna Institute of Technology',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Established in 2002, SRIT is an autonomous engineering '
+              'institution affiliated to Anna University and governed by the '
+              'SNR Sons Charitable Trust. The official profile describes a '
+              '49.99-acre campus in Coimbatore.',
+              style: TextStyle(height: 1.5),
+            ),
+            const SizedBox(height: 18),
+            const Text(
+              'Vision',
+              style: TextStyle(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'To develop into a World Class Technological Institute with '
+              'centres of excellence in various disciplines.',
+              style: TextStyle(height: 1.45),
+            ),
+            const SizedBox(height: 14),
+            const Text(
+              'Mission',
+              style: TextStyle(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'To produce Quality Engineers, Scientists and Managers equipped '
+              'with unbounded technical skills, domain knowledge and excellent '
+              'moral values.',
+              style: TextStyle(height: 1.45),
+            ),
+            const SizedBox(height: 14),
+            const Text(
+              'Management',
+              style: TextStyle(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Governed by the SNR Sons Charitable Trust. The official '
+              'management page identifies Shri Sundar Ramakrishnan as '
+              'Managing Trustee.',
+              style: TextStyle(height: 1.45),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: onOpenWebsite,
+                icon: const Icon(Icons.open_in_new_rounded),
+                label: const Text('Visit the official SRIT website'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PortalFooter extends StatelessWidget {
+  const _PortalFooter({required this.onOpenWebsite});
+
+  final VoidCallback onOpenWebsite;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: const Color(0xFF123B72),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Sri Ramakrishna Institute of Technology',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Pachapalayam (Post), Perur Chettipalayam, '
+              'Coimbatore - 641 010, India',
+              style: TextStyle(color: Colors.white70, height: 1.4),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                TextButton(
+                  onPressed: onOpenWebsite,
+                  child: const Text(
+                    'Official website',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => openCampusLink(
+                    context,
+                    Uri.parse(
+                      'https://www.facebook.com/people/'
+                      'Sri-Ramakrishna-Institute-of-Technology-Coimbatore/'
+                      '61574831909063/',
+                    ),
+                  ),
+                  child: const Text(
+                    'Facebook',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => openCampusLink(
+                    context,
+                    Uri.parse('https://www.instagram.com/snr_srit/'),
+                  ),
+                  child: const Text(
+                    'Instagram',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => openCampusLink(
+                    context,
+                    Uri.parse(
+                      'https://www.linkedin.com/school/'
+                      'sri-ramakrishna-institute-of-technology/',
+                    ),
+                  ),
+                  child: const Text(
+                    'LinkedIn',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -838,8 +1114,8 @@ class _FactsStrip extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _Fact(value: '2002', label: 'Established'),
-              _Fact(value: '8', label: 'Programmes'),
               _Fact(value: '49.99', label: 'Campus acres'),
+              _Fact(value: '65,117', label: 'Built-up sq.m'),
             ],
           ),
         ),
