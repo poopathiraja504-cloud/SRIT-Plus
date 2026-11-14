@@ -29,6 +29,13 @@
             {
               "client_id": "609694857720-l8q8glmb7di5oe1oh19ifekbj548h3ld.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "609694857720-nqgu2e0jffebmcllp3hlm8k3soc597es.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.srit.app"
+              }
             }
           ]
         }
