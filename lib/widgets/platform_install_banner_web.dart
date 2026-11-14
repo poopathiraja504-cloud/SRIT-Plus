@@ -82,16 +82,29 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
         _isAwaitingInstallConfirmation = outcome == 'accepted' && !_isInstalled;
         _canInstall = _canPromptInstall().toDart;
       });
-      if (outcome == 'error') {
+      if (outcome == 'accepted' && !_isInstalled) {
         _showMessage(
-          'The browser could not open the installation prompt. Try the '
+          'Chrome accepted the request. Follow its confirmation to finish '
+          'adding SRIT Plus.',
+        );
+      } else if (outcome == 'dismissed') {
+        _showMessage('Installation was cancelled. No app was installed.');
+      } else if (outcome == 'unavailable') {
+        await _showAndroidUnavailableInstructions();
+      } else if (outcome == 'error') {
+        _showMessage(
+          'Chrome could not open the installation prompt. Try the '
           'browser menu instead.',
         );
       }
       return;
     }
 
-    await _showInstructions(
+    await _showAndroidUnavailableInstructions();
+  }
+
+  Future<void> _showAndroidUnavailableInstructions() {
+    return _showInstructions(
       title: 'Android installation prompt unavailable',
       steps: const [
         'Chrome has not provided the beforeinstallprompt event on this visit, '
@@ -174,8 +187,9 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
         color: const Color(0xFFEAF2FF),
         elevation: 3,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
+          padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -194,7 +208,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
                   children: [
                     Text(
                       isAndroid
-                          ? 'Install SRIT Plus App'
+                          ? 'SRIT Plus — Official College App'
                           : isIPad
                           ? 'Install SRIT Plus on Your iPad'
                           : 'Install SRIT Plus on Your iPhone',
@@ -203,21 +217,31 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 4),
                     Text(
                       isAndroid
-                          ? 'Get faster access to academics, attendance, '
-                                'results and college notifications.'
+                          ? 'Get quick access to: Attendance • Internal Marks • '
+                                'Semester Results • Timetable • Academics • '
+                                'College Announcements • Student Profile'
                           : 'Access your college portal directly from your '
                                 'Home Screen.',
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Color(0xFF52657D),
                         fontSize: 12,
-                        height: 1.35,
+                        height: 1.4,
                       ),
                     ),
+                    if (isAndroid) ...[
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Install Website as PWA. No native Android APK is '
+                        'currently published.',
+                        style: TextStyle(
+                          color: Color(0xFF52657D),
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,

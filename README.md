@@ -146,13 +146,16 @@ On supported Android browsers, the website offers the browser's native PWA
 install prompt and falls back to browser-menu instructions when that prompt is
 unavailable. On iPhone and iPad, it explains Safari's Share → Add to Home
 Screen flow. Standalone installations do not show the banner, and dismissals
-are remembered by the browser. No verified Play Store or App Store listing is
-configured, so the website does not link to an unpublished native app.
-Flutter's generated web service worker behavior depends on the Flutter SDK
-version and deployment toolchain; it may cache the app shell or be a
-self-unregistering stub. The Firebase Messaging worker is separately
-configured for web push. Authentication, Firestore content, remote campus
-photographs and push delivery still require their respective online services.
+are remembered by the browser. The PWA manifest provides the SRIT Plus icons,
+and the registered Firebase Messaging worker also provides a fetch handler and
+network-first app-shell caching with an offline fallback. Chrome's in-page
+install prompt requires a service worker with a `fetch` handler. Netlify
+revalidates the app shell, worker, bootstrap and manifest after deployment.
+No verified release APK or Play Store/App Store listing is configured, so the
+website does not link to an unpublished native app. The local Android release
+signing configuration uses the debug key and is not suitable for distribution.
+Authentication, Firestore content, remote campus photographs and push
+delivery still require their respective online services.
 
 Firebase Authentication currently provides Google sign-in and
 email/password accounts. Email/password and Firebase password reset are for

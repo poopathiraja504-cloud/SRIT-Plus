@@ -106,7 +106,8 @@
           const choice = await prompt.userChoice;
           notifyFlutter();
           return choice.outcome;
-        } catch {
+        } catch (error) {
+          console.error('Could not open the SRIT Plus install prompt:', error);
           notifyFlutter();
           return 'error';
         }
@@ -130,6 +131,18 @@
         standaloneQuery.addEventListener('change', notifyFlutter);
       } else {
         standaloneQuery.addListener(notifyFlutter);
+      }
+
+      if (!window.isSecureContext) {
+        console.error('SRIT Plus installation requires a secure HTTPS context.');
+      } else if ('serviceWorker' in navigator) {
+        navigator.serviceWorker
+          .register('firebase-messaging-sw.js', { scope: '/' })
+          .catch((error) => {
+            console.error('Could not register the SRIT Plus service worker:', error);
+          });
+      } else {
+        console.error('This browser does not support service workers.');
       }
     })();
   </script>
