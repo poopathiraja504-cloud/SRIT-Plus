@@ -1,5 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
+import '../firebase_options.dart';
 
 class AuthServiceException implements Exception {
   const AuthServiceException(this.message);
@@ -46,8 +49,18 @@ class AuthService {
   }
 
   Future<void> signInWithGoogle() async {
+    if (kIsWeb) {
+      await _firebaseAuth.signInWithPopup(GoogleAuthProvider());
+      return;
+    }
+
     try {
-      _googleInitialization ??= GoogleSignIn.instance.initialize();
+      _googleInitialization ??= GoogleSignIn.instance.initialize(
+        clientId: defaultTargetPlatform == TargetPlatform.iOS
+            ? DefaultFirebaseOptions.ios.iosClientId
+            : null,
+        serverClientId: DefaultFirebaseOptions.googleWebClientId,
+      );
       await _googleInitialization;
       final googleUser = await GoogleSignIn.instance.authenticate();
       final googleAuth = googleUser.authentication;

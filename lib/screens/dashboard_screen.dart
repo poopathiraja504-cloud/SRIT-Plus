@@ -1,8 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../services/auth_service.dart';
 import '../services/campus_links.dart';
+import '../models/campus_update.dart';
+import '../providers/campus_content_provider.dart';
+import '../providers/theme_provider.dart';
 import '../widgets/brand_mark.dart';
 import 'campus_pages.dart';
 import 'website_screen.dart';
@@ -119,6 +123,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       icon: Icons.language_rounded,
                       title: 'SRIT Website',
                       onTap: _openWebsite,
+                    ),
+                    const Divider(height: 24),
+                    SwitchListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                      ),
+                      secondary: Icon(
+                        context.watch<ThemeProvider>().isDarkMode
+                            ? Icons.dark_mode_outlined
+                            : Icons.light_mode_outlined,
+                      ),
+                      title: const Text('Dark mode'),
+                      value: context.watch<ThemeProvider>().isDarkMode,
+                      onChanged: context.read<ThemeProvider>().toggleDarkMode,
                     ),
                   ],
                 ),
@@ -252,71 +270,66 @@ class DashboardHome extends StatelessWidget {
     final greeting = AuthService().currentUser?.displayName?.trim();
     return LayoutBuilder(
       builder: (context, constraints) {
-        final horizontalPadding = constraints.maxWidth >= 900 ? 36.0 : 20.0;
-        return ListView(
-          padding: EdgeInsets.fromLTRB(
-            horizontalPadding,
-            14,
-            horizontalPadding,
-            32,
-          ),
-          children: [
-            _HeroBanner(
-              greeting: greeting?.isNotEmpty == true
-                  ? 'Welcome, $greeting'
-                  : 'Welcome to SRIT',
-              onOpenWebsite: onOpenWebsite,
-            ),
-            const SizedBox(height: 26),
-            _SectionHeading(
-              title: 'Quick access',
-              trailing: 'Explore campus',
-              onTap: () => onSelectSection(campusSections.first),
-            ),
-            const SizedBox(height: 13),
-            _QuickLinks(onSelectSection: onSelectSection),
-            const SizedBox(height: 28),
-            _SectionHeading(
-              title: 'Campus updates',
-              trailing: 'Official news',
-              onTap: onOpenWebsite,
-            ),
-            const SizedBox(height: 13),
-            _CampusUpdate(
-              icon: Icons.campaign_outlined,
-              label: 'ANNOUNCEMENTS',
-              title: 'Stay connected with SRIT',
-              description:
-                  'Visit the official website for current announcements, '
-                  'academic updates and campus notices.',
-              onTap: onOpenWebsite,
-            ),
-            const SizedBox(height: 12),
-            _CampusUpdate(
-              icon: Icons.event_available_outlined,
-              label: 'NEWS & EVENTS',
-              title: 'What’s happening on campus',
-              description:
-                  'Explore the latest SRIT news, events and student activities.',
-              onTap: onOpenWebsite,
-            ),
-            const SizedBox(height: 28),
-            _SectionHeading(title: 'A message from our Principal'),
-            const SizedBox(height: 13),
-            _PrincipalCard(onReadMessage: onOpenWebsite),
-            const SizedBox(height: 28),
-            _SectionHeading(title: 'Department highlights'),
-            const SizedBox(height: 13),
-            const _DepartmentHighlights(),
-            const SizedBox(height: 24),
-            _FactsStrip(
-              onTap: () => onSelectSection(
-                campusSections.firstWhere(
-                  (section) => section.title == 'About Us',
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1120),
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 14, 20, 32),
+              children: [
+                _HeroBanner(
+                  greeting: greeting?.isNotEmpty == true
+                      ? 'Welcome, $greeting'
+                      : 'Welcome to SRIT',
+                  onOpenWebsite: onOpenWebsite,
                 ),
-              ),
+                const SizedBox(height: 26),
+                _SectionHeading(
+                  title: 'Quick access',
+                  trailing: 'Explore campus',
+                  onTap: () => onSelectSection(campusSections.first),
+                ),
+                const SizedBox(height: 13),
+                _QuickLinks(onSelectSection: onSelectSection),
+                const SizedBox(height: 28),
+                const _SectionHeading(title: 'Latest announcements'),
+                const SizedBox(height: 13),
+                const _LiveCampusContent(
+                  type: CampusUpdateType.announcement,
+                  emptyMessage: 'No published announcements yet.',
+                ),
+                const SizedBox(height: 22),
+                const _SectionHeading(title: 'Latest news'),
+                const SizedBox(height: 13),
+                const _LiveCampusContent(
+                  type: CampusUpdateType.news,
+                  emptyMessage: 'No published news yet.',
+                ),
+                const SizedBox(height: 22),
+                const _SectionHeading(title: 'Upcoming events'),
+                const SizedBox(height: 13),
+                const _LiveCampusContent(
+                  type: CampusUpdateType.event,
+                  emptyMessage: 'No upcoming events have been announced.',
+                ),
+                const SizedBox(height: 28),
+                _SectionHeading(title: 'A message from our Principal'),
+                const SizedBox(height: 13),
+                _PrincipalCard(onReadMessage: onOpenWebsite),
+                const SizedBox(height: 28),
+                _SectionHeading(title: 'Department highlights'),
+                const SizedBox(height: 13),
+                const _DepartmentHighlights(),
+                const SizedBox(height: 24),
+                _FactsStrip(
+                  onTap: () => onSelectSection(
+                    campusSections.firstWhere(
+                      (section) => section.title == 'About Us',
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
@@ -380,7 +393,7 @@ class _HeroBanner extends StatelessWidget {
                   Text(
                     greeting,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -404,6 +417,163 @@ class _HeroBanner extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LiveCampusContent extends StatelessWidget {
+  const _LiveCampusContent({required this.type, required this.emptyMessage});
+
+  final CampusUpdateType type;
+  final String emptyMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<CampusContentProvider>(
+      builder: (context, content, _) {
+        final (items, isLoading, error) = switch (type) {
+          CampusUpdateType.announcement => (
+            content.announcements,
+            content.isLoadingAnnouncements,
+            content.announcementsError,
+          ),
+          CampusUpdateType.news => (
+            content.news,
+            content.isLoadingNews,
+            content.newsError,
+          ),
+          CampusUpdateType.event => (
+            content.events,
+            content.isLoadingEvents,
+            content.eventsError,
+          ),
+        };
+        if (error != null) {
+          return Card(
+            child: ListTile(
+              leading: Icon(
+                Icons.cloud_off_outlined,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              title: const Text('Campus updates unavailable'),
+              subtitle: Text('$error'),
+              trailing: IconButton(
+                tooltip: 'Retry campus updates',
+                onPressed: content.refresh,
+                icon: const Icon(Icons.refresh_rounded),
+              ),
+            ),
+          );
+        }
+        if (isLoading) {
+          return const Card(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: LinearProgressIndicator(),
+            ),
+          );
+        }
+        if (items.isEmpty) {
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Text(
+                emptyMessage,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          );
+        }
+        return Column(
+          children: [
+            for (final item in items) ...[
+              _CampusUpdateCard(item: item),
+              if (item != items.last) const SizedBox(height: 10),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _CampusUpdateCard extends StatelessWidget {
+  const _CampusUpdateCard({required this.item});
+
+  final CampusUpdate item;
+
+  @override
+  Widget build(BuildContext context) {
+    final date = item.publishedAt;
+    final dateLabel = date == null
+        ? null
+        : '${date.toLocal().year}-'
+              '${date.toLocal().month.toString().padLeft(2, '0')}-'
+              '${date.toLocal().day.toString().padLeft(2, '0')}';
+    final icon = switch (item.type) {
+      CampusUpdateType.announcement => Icons.campaign_outlined,
+      CampusUpdateType.news => Icons.newspaper_outlined,
+      CampusUpdateType.event => Icons.event_available_outlined,
+    };
+
+    return Card(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: item.link == null
+            ? null
+            : () => openCampusLink(context, item.link!),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2467CF).withValues(alpha: 0.09),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: const Color(0xFF2467CF)),
+              ),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (dateLabel != null) ...[
+                      Text(
+                        dateLabel,
+                        style: const TextStyle(
+                          color: Color(0xFFAD8132),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                    ],
+                    Text(
+                      item.title,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      item.description,
+                      style: const TextStyle(
+                        color: Color(0xFF65758A),
+                        fontSize: 12,
+                        height: 1.45,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (item.link != null)
+                const Icon(Icons.open_in_new_rounded, size: 16),
+            ],
+          ),
         ),
       ),
     );
@@ -505,81 +675,6 @@ class _QuickLinks extends StatelessWidget {
           },
         );
       },
-    );
-  }
-}
-
-class _CampusUpdate extends StatelessWidget {
-  const _CampusUpdate({
-    required this.icon,
-    required this.label,
-    required this.title,
-    required this.description,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final String title;
-  final String description;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2467CF).withValues(alpha: 0.09),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(icon, color: const Color(0xFF2467CF)),
-              ),
-              const SizedBox(width: 13),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        color: Color(0xFFAD8132),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      title,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      description,
-                      style: const TextStyle(
-                        color: Color(0xFF65758A),
-                        fontSize: 12,
-                        height: 1.45,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.arrow_forward_ios_rounded, size: 15),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

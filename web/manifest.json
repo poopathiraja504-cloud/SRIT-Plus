@@ -1,11 +1,11 @@
 {
-    "name": "srit_connect",
-    "short_name": "srit_connect",
+    "name": "SRIT Plus",
+    "short_name": "SRIT Plus",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#123B72",
+    "theme_color": "#123B72",
+    "description": "Campus information for Sri Ramakrishna Institute of Technology, Coimbatore.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

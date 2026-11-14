@@ -68,6 +68,16 @@ final campusSections = <CampusSection>[
         'Check examination notices, schedules and related information.',
         Icons.fact_check_outlined,
       ),
+      CampusHighlight(
+        'Examination Cell',
+        'Review examination-cell notices and assessment information.',
+        Icons.assignment_turned_in_outlined,
+      ),
+      CampusHighlight(
+        'Academic Regulations',
+        'Read the regulations governing programmes and academic progression.',
+        Icons.rule_outlined,
+      ),
     ],
     actionLabel: 'Visit SRIT website',
     actionUri: Uri.parse(sritWebsite),
@@ -145,6 +155,11 @@ final campusSections = <CampusSection>[
         'Established in 2002 and governed by the SNR Sons Charitable Trust.',
         Icons.history_edu_outlined,
       ),
+      CampusHighlight(
+        'Campus Overview',
+        'Explore SRIT’s 49.99-acre Coimbatore campus and facilities.',
+        Icons.landscape_outlined,
+      ),
     ],
     actionLabel: 'More about SRIT',
     actionUri: Uri.parse(sritWebsite),
@@ -166,6 +181,11 @@ final campusSections = <CampusSection>[
         'Top Recruiters',
         'Explore organisations participating in campus recruitment.',
         Icons.business_center_outlined,
+      ),
+      CampusHighlight(
+        'Recruiters',
+        'Explore organisations participating in campus recruitment.',
+        Icons.apartment_outlined,
       ),
       CampusHighlight(
         'Training Programs',
@@ -200,6 +220,11 @@ final campusSections = <CampusSection>[
         Icons.hub_outlined,
       ),
       CampusHighlight(
+        'Research Centres',
+        'Explore research facilities and centres at the institution.',
+        Icons.science_outlined,
+      ),
+      CampusHighlight(
         'Publications',
         'Find faculty and student research publications.',
         Icons.article_outlined,
@@ -213,6 +238,11 @@ final campusSections = <CampusSection>[
         'Projects',
         'Explore funded, academic and collaborative research projects.',
         Icons.biotech_outlined,
+      ),
+      CampusHighlight(
+        'Funded Projects',
+        'Explore externally funded and sponsored research projects.',
+        Icons.account_balance_outlined,
       ),
     ],
     actionLabel: 'Explore research',
