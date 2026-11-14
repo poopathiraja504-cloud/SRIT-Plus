@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "609694857720",
+    "project_id": "srit-app-d51f4",
+    "storage_bucket": "srit-app-d51f4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:609694857720:android:e5f86437027896fd813e0d",
+        "android_client_info": {
+          "package_name": "com.srit.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "609694857720-l8q8glmb7di5oe1oh19ifekbj548h3ld.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvZavMpOLXYmwJqsfYqL8ZrVkEI1W_6Sg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "609694857720-l8q8glmb7di5oe1oh19ifekbj548h3ld.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
