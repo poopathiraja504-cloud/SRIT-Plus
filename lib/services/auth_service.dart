@@ -20,7 +20,7 @@ class AuthService {
   final FirebaseAuth _firebaseAuth;
   static Future<void>? _googleInitialization;
 
-  Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
+  Stream<User?> get authStateChanges => _firebaseAuth.userChanges();
 
   User? get currentUser => _firebaseAuth.currentUser;
 
@@ -46,6 +46,20 @@ class AuthService {
 
   Future<void> sendPasswordReset(String email) {
     return _firebaseAuth.sendPasswordResetEmail(email: email.trim());
+  }
+
+  Future<void> sendEmailVerification() async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) {
+      throw const AuthServiceException(
+        'Sign in to your SRIT Plus account before verifying your email.',
+      );
+    }
+    if (!user.emailVerified) await user.sendEmailVerification();
+  }
+
+  Future<void> reloadCurrentUser() async {
+    await _firebaseAuth.currentUser?.reload();
   }
 
   Future<void> signInWithGoogle() async {

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_state_provider.dart';
 import '../widgets/brand_mark.dart';
 import 'dashboard_screen.dart';
+import 'email_verification_screen.dart';
 import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -140,6 +141,14 @@ class AuthGate extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (auth.user == null) return const LoginScreen();
+    final requiresEmailVerification =
+        !auth.user!.emailVerified &&
+        auth.user!.providerData.any(
+          (provider) => provider.providerId == 'password',
+        );
+    if (requiresEmailVerification) {
+      return EmailVerificationScreen(user: auth.user!);
+    }
     return const DashboardScreen();
   }
 }

@@ -1,4 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +11,7 @@ import 'providers/theme_provider.dart';
 import 'screens/splash_screen.dart';
 import 'services/campus_content_service.dart';
 import 'utils/app_theme.dart';
+import 'widgets/platform_install_banner.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +29,19 @@ Future<void> main() async {
     );
   }
 
+  if (startupError == null && !kIsWeb) {
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  }
+
   runApp(SRITPlus(startupError: startupError));
+}
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  debugPrint(
+    'Received background push: ${message.messageId ?? 'no message id'}',
+  );
 }
 
 class SRITPlus extends StatelessWidget {
@@ -43,6 +58,12 @@ class SRITPlus extends StatelessWidget {
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         home: FirebaseStartupErrorScreen(error: startupError!),
+        builder: (context, child) => Column(
+          children: [
+            const PlatformInstallBanner(),
+            Expanded(child: child ?? const SizedBox.shrink()),
+          ],
+        ),
       );
     }
 
@@ -72,6 +93,12 @@ class _ThemedApplication extends StatelessWidget {
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
       home: const SplashScreen(),
+      builder: (context, child) => Column(
+        children: [
+          const PlatformInstallBanner(),
+          Expanded(child: child ?? const SizedBox.shrink()),
+        ],
+      ),
     );
   }
 }

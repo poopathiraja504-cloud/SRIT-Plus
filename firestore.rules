@@ -20,5 +20,16 @@ service cloud.firestore {
       allow read: if signedIn() && resource.data.published == true;
       allow write: if false;
     }
+
+    match /users/{userId}/devices/{deviceToken} {
+      allow read: if false;
+      allow create, update: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['platform', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['platform', 'updatedAt'])
+        && request.resource.data.platform in ['web', 'android', 'ios', 'other']
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if signedIn() && request.auth.uid == userId;
+    }
   }
 }

@@ -1,8 +1,11 @@
 {
     "name": "SRIT Plus",
     "short_name": "SRIT Plus",
-    "start_url": ".",
+    "id": ".",
+    "scope": "./",
+    "start_url": "./",
     "display": "standalone",
+    "display_override": ["standalone", "minimal-ui"],
     "background_color": "#123B72",
     "theme_color": "#123B72",
     "description": "Campus information for Sri Ramakrishna Institute of Technology, Coimbatore.",

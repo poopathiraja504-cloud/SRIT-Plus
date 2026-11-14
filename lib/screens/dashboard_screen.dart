@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,6 +11,7 @@ import '../services/campus_links.dart';
 import '../models/campus_update.dart';
 import '../providers/campus_content_provider.dart';
 import '../providers/theme_provider.dart';
+import '../services/push_notification_service.dart';
 import '../widgets/brand_mark.dart';
 import 'campus_pages.dart';
 import 'website_screen.dart';
@@ -21,10 +26,30 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   CampusSection? _selectedSection;
   bool _isSigningOut = false;
+  late final PushNotificationService _pushNotificationService;
+  StreamSubscription<RemoteMessage>? _messageOpenedSubscription;
+  StreamSubscription<RemoteMessage>? _foregroundMessageSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _pushNotificationService = PushNotificationService();
+    _messageOpenedSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
+      _openNotificationSection,
+    );
+    _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen(
+      _showForegroundNotification,
+    );
+    unawaited(_openInitialNotification());
+    _openSectionFromWebUrl();
+  }
 
   Future<void> _signOut() async {
     setState(() => _isSigningOut = true);
     try {
+      await _pushNotificationService.unregisterCurrentDevice(
+        AuthService().currentUser,
+      );
       await AuthService().signOut();
     } on FirebaseAuthException catch (error) {
       if (mounted) {
@@ -38,9 +63,120 @@ class _DashboardScreenState extends State<DashboardScreen> {
           context,
         ).showSnackBar(SnackBar(content: Text(error.message)));
       }
+    } on FirebaseException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Could not remove this device from push notifications: '
+              '${error.message ?? error.code}. Try signing out again.',
+            ),
+          ),
+        );
+      }
+    } on PushNotificationException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
+      }
     } finally {
       if (mounted) setState(() => _isSigningOut = false);
     }
+  }
+
+  Future<void> _enableNotifications() async {
+    final user = AuthService().currentUser;
+    if (user == null) return;
+    try {
+      await _pushNotificationService.enableForUser(user);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('SRIT Plus notifications are enabled.')),
+        );
+      }
+    } on PushNotificationException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
+      }
+    } on FirebaseException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Could not register this device for notifications: '
+              '${error.message ?? error.code}.',
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _openInitialNotification() async {
+    if (!await FirebaseMessaging.instance.isSupported()) return;
+    try {
+      final message = await FirebaseMessaging.instance.getInitialMessage();
+      if (message != null) _openNotificationSection(message);
+    } on FirebaseException catch (error, stackTrace) {
+      debugPrint('Could not read the initial push notification: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
+  }
+
+  void _openSectionFromWebUrl() {
+    if (!kIsWeb) return;
+    final title = Uri.base.queryParameters['section'];
+    if (title != null) _openSection(title);
+  }
+
+  void _openNotificationSection(RemoteMessage message) {
+    final title = message.data['section'];
+    if (title is String) _openSection(title);
+  }
+
+  void _openSection(String title) {
+    for (final section in campusSections) {
+      if (section.title == title) {
+        if (mounted) setState(() => _selectedSection = section);
+        return;
+      }
+    }
+    if (title == 'Home' && mounted) {
+      setState(() => _selectedSection = null);
+    }
+  }
+
+  void _showForegroundNotification(RemoteMessage message) {
+    final notification = message.notification;
+    if (notification == null || !mounted) return;
+    final title = message.data['section'];
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          [
+            if (notification.title?.isNotEmpty == true) notification.title,
+            if (notification.body?.isNotEmpty == true) notification.body,
+          ].join('\n'),
+        ),
+        action: title is String
+            ? SnackBarAction(
+                label: 'Open',
+                onPressed: () => _openSection(title),
+              )
+            : null,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    unawaited(_messageOpenedSubscription?.cancel());
+    unawaited(_foregroundMessageSubscription?.cancel());
+    unawaited(_pushNotificationService.dispose());
+    super.dispose();
   }
 
   void _selectSection(CampusSection? section) {
@@ -130,6 +266,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       icon: Icons.language_rounded,
                       title: 'SRIT Website',
                       onTap: _openWebsite,
+                    ),
+                    _DrawerItem(
+                      icon: Icons.notifications_active_outlined,
+                      title: 'Enable notifications',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _enableNotifications();
+                      },
                     ),
                     const Divider(height: 24),
                     SwitchListTile(
@@ -698,9 +842,8 @@ class _QuickLinks extends StatelessWidget {
     ];
     final quickSections = titles
         .map(
-          (title) => campusSections.firstWhere(
-            (section) => section.title == title,
-          ),
+          (title) =>
+              campusSections.firstWhere((section) => section.title == title),
         )
         .toList(growable: false);
     return LayoutBuilder(
@@ -908,11 +1051,7 @@ class _DepartmentHighlights extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(
-                        department.icon,
-                        color: department.color,
-                        size: 24,
-                      ),
+                      Icon(department.icon, color: department.color, size: 24),
                       Text(
                         department.title,
                         maxLines: 2,
@@ -962,10 +1101,7 @@ class _InstitutionOverview extends StatelessWidget {
               style: TextStyle(height: 1.5),
             ),
             const SizedBox(height: 18),
-            const Text(
-              'Vision',
-              style: TextStyle(fontWeight: FontWeight.w800),
-            ),
+            const Text('Vision', style: TextStyle(fontWeight: FontWeight.w800)),
             const SizedBox(height: 4),
             const Text(
               'To develop into a World Class Technological Institute with '

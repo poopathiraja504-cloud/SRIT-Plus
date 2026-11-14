@@ -40,6 +40,20 @@ class _SignupScreenState extends State<SignupScreen> {
         email: _emailController.text,
         password: _passwordController.text,
       );
+      try {
+        await _authService.sendEmailVerification();
+      } on FirebaseAuthException catch (error) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Your account was created, but the verification email could '
+              'not be sent: ${AuthService.messageForFirebaseError(error)}. '
+              'You can resend it from the verification screen.',
+            ),
+          ),
+        );
+      }
       if (mounted) Navigator.of(context).pop();
     } on FirebaseAuthException catch (error) {
       if (mounted) {

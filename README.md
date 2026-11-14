@@ -59,11 +59,36 @@ Before running:
    Authentication → Sign-in method.
 2. Register `com.srit.app` as the Android and iOS app IDs. Add your Android
    signing certificate SHA-1 and SHA-256 fingerprints to Firebase for native
-   Google sign-in.
+   Google sign-in. The existing Google provider, OAuth client configuration,
+   Android package, iOS bundle ID and iOS URL scheme are retained.
 3. Add the web deployment origin to Firebase Authentication's **Authorized
    domains** for web sign-in.
-4. Create the Cloud Firestore database and deploy the read-only rules and
-   indexes from this repository:
+4. Configure Firebase Authentication email-verification and reset-email
+   templates. New email/password sign-ups receive a verification email;
+   unverified email/password accounts see a verification screen until they
+   verify. Existing Firebase users are not deleted or migrated. Google sign-in
+   remains unchanged. Email verification and Firebase password reset concern
+   SRIT Plus accounts, not institutional email passwords.
+5. To enable push notifications, enable Firebase Cloud Messaging for the same
+   Firebase project. Upload an APNs authentication key in Firebase Console and
+   enable Push Notifications for the iOS App ID and signing profile. Android
+   users grant notification permission from the app's **Enable notifications**
+   menu item. For web, create a Web Push certificate in Firebase Console and
+   build with its **public VAPID key**:
+
+   ```powershell
+   flutter build web --release --dart-define=FCM_WEB_VAPID_KEY=<public-vapid-key>
+   ```
+
+   The VAPID key is public client configuration; never put service-account
+   credentials or private keys in the app. Web background notifications use
+   `web/firebase-messaging-sw.js`; notification data may include a `section`
+   value matching a campus page title to open that page when tapped. Use a
+   trusted server or Cloud Function with server-side credentials to send
+   notifications. No notification-sending backend is configured in this
+   repository.
+6. Create the Cloud Firestore database and deploy the read-only content rules
+   and per-user FCM device-token rules from this repository:
 
    ```powershell
    firebase login
@@ -88,6 +113,13 @@ rather than hiding the failure.
 Firebase Authentication keeps its platform-default session persistence; the
 dashboard restores the signed-in user on launch.
 
+FCM device tokens are written only under
+`users/{authenticatedUid}/devices/{token}`. A user can write and delete only
+their own device-token records; clients cannot read those records or modify
+other content. Signing out removes the current device token when messaging is
+configured. Firebase manages expiration for tokens belonging to uninstalled
+apps.
+
 ## Campus information and branding
 
 The current official SRIT website is `https://www.sritcbe.ac.in/`. Campus
@@ -98,6 +130,16 @@ local image assets sourced from their respective official sites. The campus
 background is a 1920 × 1080 optimized image. The app icon sets and web favicon
 use the official SRIT emblem.
 
+On supported Android browsers, the website offers the browser's native PWA
+install prompt and falls back to browser-menu instructions when that prompt is
+unavailable. On iPhone and iPad, it explains Safari's Share → Add to Home
+Screen flow. Standalone installations do not show the banner, and dismissals
+are remembered by the browser. No verified Play Store or App Store listing is
+configured, so the website does not link to an unpublished native app.
+Flutter's generated web service worker caches the app shell; authentication,
+Firestore content and push delivery still require their respective online
+services.
+
 Firebase Authentication currently provides Google sign-in and
 email/password accounts. Email/password and Firebase password reset are for
 SRIT Plus accounts; they do not authenticate or reset institutional Google
@@ -107,6 +149,12 @@ institution-approved eligibility policy before presenting it as
 SRIT-exclusive. No student-record system or approved schema is configured;
 personal attendance, marks, fees and timetable records are therefore not
 displayed.
+
+FCM requires Firebase Console configuration in addition to the client code.
+Web push needs a VAPID public key at build time; iOS push needs an APNs key,
+an enabled Apple Push capability and a matching provisioning profile.
+Notification sending also requires a trusted server-side sender. These
+external services cannot be enabled or tested from repository changes alone.
 
 Native platforms use `webview_flutter`; web uses an embedded browser frame and
 offers an open-in-new-tab action. Some websites block embedding in browsers.

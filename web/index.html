@@ -33,6 +33,104 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <script>
+    (() => {
+      const dismissalKey = 'srit-plus-install-dismissed-v1';
+      let deferredInstallPrompt = null;
+      let installed = false;
+      let dismissedInSession = false;
+
+      const notifyFlutter = () => {
+        window.dispatchEvent(new Event('srit-install-state-change'));
+      };
+
+      const isStandalone = () =>
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true ||
+        document.referrer.startsWith('android-app://');
+
+      const browserPlatform = () => {
+        const userAgent = window.navigator.userAgent || '';
+        const platform =
+          window.navigator.userAgentData?.platform ||
+          window.navigator.platform ||
+          '';
+
+        if (/android/i.test(userAgent)) return 'android';
+        const isIPad =
+          /iPad/i.test(userAgent) ||
+          (platform === 'MacIntel' && window.navigator.maxTouchPoints > 1);
+        if (isIPad) return 'ios-tablet';
+        if (/iPhone|iPod/i.test(userAgent)) {
+          return 'ios';
+        }
+        return 'desktop';
+      };
+
+      window.sritInstallPlatform = browserPlatform;
+      window.sritIsStandalone = () => installed || isStandalone();
+      window.sritCanPromptInstall = () => deferredInstallPrompt !== null;
+      window.sritWasInstallDismissed = () => {
+        if (dismissedInSession) return true;
+        try {
+          return window.localStorage.getItem(dismissalKey) === '1';
+        } catch (error) {
+          if (error instanceof DOMException && error.name === 'SecurityError') {
+            return false;
+          }
+          throw error;
+        }
+      };
+      window.sritDismissInstall = () => {
+        dismissedInSession = true;
+        try {
+          window.localStorage.setItem(dismissalKey, '1');
+        } catch (error) {
+          if (
+            error instanceof DOMException &&
+            ['SecurityError', 'QuotaExceededError'].includes(error.name)
+          ) {
+            return;
+          }
+          throw error;
+        }
+      };
+      window.sritPromptInstall = async () => {
+        if (!deferredInstallPrompt) return 'unavailable';
+        const prompt = deferredInstallPrompt;
+        deferredInstallPrompt = null;
+        try {
+          await prompt.prompt();
+          const choice = await prompt.userChoice;
+          notifyFlutter();
+          return choice.outcome;
+        } catch {
+          notifyFlutter();
+          return 'error';
+        }
+      };
+
+      window.addEventListener('beforeinstallprompt', (event) => {
+        if (browserPlatform() !== 'android' || isStandalone()) return;
+        event.preventDefault();
+        deferredInstallPrompt = event;
+        notifyFlutter();
+      });
+
+      window.addEventListener('appinstalled', () => {
+        installed = true;
+        deferredInstallPrompt = null;
+        notifyFlutter();
+      });
+
+      const standaloneQuery = window.matchMedia('(display-mode: standalone)');
+      if (standaloneQuery.addEventListener) {
+        standaloneQuery.addEventListener('change', notifyFlutter);
+      } else {
+        standaloneQuery.addListener(notifyFlutter);
+      }
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
