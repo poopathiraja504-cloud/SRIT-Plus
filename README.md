@@ -235,6 +235,12 @@ flutter build apk --release
 flutter build appbundle --release
 ```
 
+On Windows, keep the Android SDK path free of spaces. If Gradle completes but
+Flutter's App Bundle validation fails in `apkanalyzer`, move the SDK to a
+no-space path or configure Flutter and the machine-local
+`android/local.properties` to use a valid no-space path (for example, an
+available 8.3 short path). Do not commit `local.properties`.
+
 Build and run web:
 
 ```powershell
