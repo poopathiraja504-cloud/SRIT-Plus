@@ -97,6 +97,14 @@ Before running:
    firebase deploy --only firestore:rules,firestore:indexes
    ```
 
+   To deploy only the composite indexes after changing
+   `firestore.indexes.json`, run:
+
+   ```powershell
+   firebase deploy --only firestore:indexes --project srit-app-d51f4
+   firebase firestore:indexes --project srit-app-d51f4 --pretty
+   ```
+
 The app reads only published content. Create documents in the `announcements`,
 `news` and `events` collections with these fields:
 
@@ -160,14 +168,23 @@ and the registered Firebase Messaging worker also provides a fetch handler and
 network-first app-shell caching with an offline fallback. Chrome's in-page
 install prompt requires a service worker with a `fetch` handler. Netlify
 revalidates the app shell, worker, bootstrap and manifest after deployment.
-The website's Android and desktop download section serves the native Flutter
-APK at `/downloads/app-release.apk` (version 1.0.0, 50.0 MiB / 52.4 MB). The
-APK is included in `web/downloads`, so Flutter copies it into `build/web/downloads`
-and Netlify publishes it with the website. Android users can open the download,
-allow their browser to install apps when prompted, then install SRIT PORTAL. The
-current local release APK uses the Android debug signing key and is not
-suitable as a permanent production signing identity. No Play Store or App
-Store listing is configured.
+The website's Android and desktop download section serves ABI-specific native
+Flutter APKs from `web/downloads`: arm64-v8a (19.4 MiB), armeabi-v7a (17.0 MiB)
+and x86_64 (20.5 MiB). The 50.0 MiB universal APK remains available at
+`/downloads/app-release.apk` for compatibility. Build variants with:
+
+```powershell
+flutter build apk --release --split-per-abi
+```
+
+Flutter copies these static APKs into `build/web/downloads`; Netlify serves them
+with the Android package MIME type and computes `Content-Length` from each
+file. Android users should choose the ABI matching their device, allow browser
+installs when prompted, then install SRIT PORTAL. The current local release
+APKs use the Android debug signing key and are not suitable as a permanent
+production signing identity. No native iOS App Store or TestFlight release is
+published; iOS visitors are not offered APK downloads and can add the website
+to their Home Screen from Safari.
 The web build also publishes the Google Search Console verification file,
 `robots.txt`, and `sitemap.xml`. SEO metadata and structured data use the
 official institutional emblem in the web icon set. Search ranking or indexing

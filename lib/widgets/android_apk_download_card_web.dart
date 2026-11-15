@@ -5,13 +5,65 @@ import 'package:web/web.dart' as web;
 
 import '../services/activity_analytics_service.dart';
 
-const String kAndroidApkPath = '/downloads/app-release.apk';
-const String kAndroidApkFileName = 'SRIT-PORTAL-1.0.0.apk';
+const String kAndroidApkPath = '/downloads/app-arm64-v8a-release.apk';
+const String kAndroidApkFileName = 'SRIT-PORTAL-1.0.0-arm64-v8a.apk';
 const String kAndroidApkVersion = '1.0.0';
-const String kAndroidApkSize = '50.0 MiB';
+const String kAndroidApkSize = '19.4 MiB';
 const String kAndroidPackageName = 'com.srit.app';
+const String kUniversalAndroidApkPath = '/downloads/app-release.apk';
+const String kUniversalAndroidApkFileName = 'SRIT-PORTAL-1.0.0.apk';
+const String kUniversalAndroidApkSize = '50.0 MiB';
 
-void triggerAndroidApkDownload() {
+class _AndroidApkVariant {
+  const _AndroidApkVariant({
+    required this.architecture,
+    required this.size,
+    required this.path,
+    required this.fileName,
+  });
+
+  final String architecture;
+  final String size;
+  final String path;
+  final String fileName;
+}
+
+const _androidApkVariants = [
+  _AndroidApkVariant(
+    architecture: 'arm64-v8a',
+    size: '19.4 MiB',
+    path: kAndroidApkPath,
+    fileName: kAndroidApkFileName,
+  ),
+  _AndroidApkVariant(
+    architecture: 'armeabi-v7a',
+    size: '17.0 MiB',
+    path: '/downloads/app-armeabi-v7a-release.apk',
+    fileName: 'SRIT-PORTAL-1.0.0-armeabi-v7a.apk',
+  ),
+  _AndroidApkVariant(
+    architecture: 'x86_64',
+    size: '20.5 MiB',
+    path: '/downloads/app-x86_64-release.apk',
+    fileName: 'SRIT-PORTAL-1.0.0-x86_64.apk',
+  ),
+];
+
+bool get isIosBrowser {
+  final navigator = web.window.navigator;
+  final userAgent = navigator.userAgent;
+  return RegExp(
+        r'iPhone|iPad|iPod',
+        caseSensitive: false,
+      ).hasMatch(userAgent) ||
+      (navigator.platform == 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+void triggerAndroidApkDownload({
+  String path = kAndroidApkPath,
+  String fileName = kAndroidApkFileName,
+}) {
+  if (isIosBrowser) return;
   unawaited(
     ActivityAnalyticsService.instance.logActivity(
       eventName: 'app_install_interaction',
@@ -22,8 +74,8 @@ void triggerAndroidApkDownload() {
   final body = web.document.body;
   if (body == null) return;
   final anchor = web.HTMLAnchorElement()
-    ..href = kAndroidApkPath
-    ..download = kAndroidApkFileName
+    ..href = path
+    ..download = fileName
     ..style.display = 'none';
   body.append(anchor);
   try {
@@ -31,6 +83,57 @@ void triggerAndroidApkDownload() {
   } finally {
     anchor.remove();
   }
+}
+
+Future<void> showAndroidApkVariantPicker(BuildContext context) {
+  return showDialog<void>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Choose Android APK version'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final variant in _androidApkVariants)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.android, color: Color(0xFF006B50)),
+              title: Text(variant.architecture),
+              subtitle: Text('${variant.size} • Android APK'),
+              onTap: () {
+                Navigator.of(context).pop();
+                triggerAndroidApkDownload(
+                  path: variant.path,
+                  fileName: variant.fileName,
+                );
+              },
+            ),
+          const Divider(),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(
+              Icons.devices_rounded,
+              color: Color(0xFF006B50),
+            ),
+            title: const Text('Universal APK'),
+            subtitle: const Text('$kUniversalAndroidApkSize • larger download'),
+            onTap: () {
+              Navigator.of(context).pop();
+              triggerAndroidApkDownload(
+                path: kUniversalAndroidApkPath,
+                fileName: kUniversalAndroidApkFileName,
+              );
+            },
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+      ],
+    ),
+  );
 }
 
 Future<void> showAndroidApkInstallInstructions(BuildContext context) {
@@ -72,7 +175,8 @@ Future<void> showAndroidApkInstallInstructions(BuildContext context) {
               stepNumber: '1',
               title: 'Download the APK',
               description:
-                  'Click "Download Android App" to save $kAndroidApkFileName ($kAndroidApkSize).',
+                  'Most Android phones use arm64-v8a ($kAndroidApkSize). '
+                  'Choose another device version from "Other versions" if needed.',
             ),
             _instructionStep(
               stepNumber: '2',
@@ -208,6 +312,8 @@ class AndroidApkDownloadCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isIosBrowser) return const _IosAppAvailabilityCard();
+
     final bgColor = darkTheme
         ? const Color(0xFF063F32).withValues(alpha: 0.92)
         : Colors.white;
@@ -291,14 +397,10 @@ class AndroidApkDownloadCard extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.android,
-                  size: 16,
-                  color: metaColor,
-                ),
+                Icon(Icons.android, size: 16, color: metaColor),
                 const SizedBox(width: 6),
                 Text(
-                  'v$kAndroidApkVersion  •  $kAndroidApkSize  •  Native APK',
+                  'v$kAndroidApkVersion  •  $kAndroidApkSize  •  arm64-v8a',
                   style: TextStyle(
                     color: metaColor,
                     fontWeight: FontWeight.w700,
@@ -343,6 +445,16 @@ class AndroidApkDownloadCard extends StatelessWidget {
                 icon: const Icon(Icons.help_outline, size: 16),
                 label: const Text('Install instructions'),
               ),
+              TextButton.icon(
+                onPressed: () => showAndroidApkVariantPicker(context),
+                style: TextButton.styleFrom(
+                  foregroundColor: darkTheme
+                      ? const Color(0xFFB7E4D0)
+                      : const Color(0xFF00785B),
+                ),
+                icon: const Icon(Icons.devices_rounded, size: 16),
+                label: const Text('Other versions'),
+              ),
             ],
           ),
         ],
@@ -361,6 +473,8 @@ class AndroidApkDownloadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isIosBrowser) return const _IosAppAvailabilityCard();
+
     return FilledButton.icon(
       onPressed: triggerAndroidApkDownload,
       style: FilledButton.styleFrom(
@@ -369,6 +483,65 @@ class AndroidApkDownloadButton extends StatelessWidget {
       ),
       icon: const Icon(Icons.download, size: 18),
       label: Text(label),
+    );
+  }
+}
+
+class _IosAppAvailabilityCard extends StatelessWidget {
+  const _IosAppAvailabilityCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFD0E4D9)),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(9),
+            child: Image.asset(
+              'assets/images/srit_logo.png',
+              width: 40,
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+          ),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'SRIT PORTAL for iPhone and iPad',
+                  style: TextStyle(
+                    color: Color(0xFF004B39),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'The native iOS app is not yet available on the App Store or TestFlight. Add this website to your Home Screen in Safari to access the portal.',
+                  style: TextStyle(
+                    color: Color(0xFF52665B),
+                    fontSize: 12,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Icon(
+            Icons.ios_share_rounded,
+            color: Color(0xFF006B50),
+            semanticLabel: 'Safari Share menu',
+          ),
+        ],
+      ),
     );
   }
 }

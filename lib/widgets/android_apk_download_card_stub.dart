@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+bool get isIosBrowser => false;
+
 class AndroidApkDownloadCard extends StatelessWidget {
   const AndroidApkDownloadCard({
     this.compact = false,
