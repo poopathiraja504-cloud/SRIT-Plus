@@ -1,6 +1,6 @@
 {
-    "name": "SRIT PORTAL",
-    "short_name": "SRIT PORTAL",
+    "name": "SRIT Plus | Sri Ramakrishna Institute of Technology",
+    "short_name": "SRIT Plus",
     "id": "/",
     "scope": "/",
     "start_url": "/",
@@ -8,7 +8,7 @@
     "display_override": ["standalone", "minimal-ui"],
     "background_color": "#FFFFFF",
     "theme_color": "#006B50",
-    "description": "Official SRIT PORTAL for student information, attendance, results, timetables, announcements and campus services.",
+    "description": "Official SRIT Plus portal for Sri Ramakrishna Institute of Technology, Coimbatore. Access academics, admissions, placements, research, COE, online fee payment, student services, and official college information.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
