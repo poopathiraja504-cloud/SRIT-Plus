@@ -9,6 +9,11 @@ command = "flutter build web --release"
 publish = "build/web"
 
 [[redirects]]
+from = "/downloads/*.apk"
+to = "/index.html"
+status = 404
+
+[[redirects]]
 from = "/*"
 to = "/index.html"
 status = 200
@@ -38,7 +43,7 @@ for = "/manifest.json"
   Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
-for = "/downloads/*.apk"
+for = "/downloads/app-release.apk"
 
   [headers.values]
   Content-Type = "application/vnd.android.package-archive"
