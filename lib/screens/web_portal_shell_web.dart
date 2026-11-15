@@ -10,6 +10,7 @@ import '../providers/campus_content_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
 import '../services/campus_links.dart';
+import '../widgets/android_apk_download_card.dart';
 import '../widgets/official_srit_gallery.dart';
 import 'campus_pages.dart';
 
@@ -549,6 +550,21 @@ class _PortalSidebar extends StatelessWidget {
               ],
             ),
           ),
+          const Divider(height: 1),
+          if (!collapsed)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: AndroidApkDownloadCard(compact: true),
+            )
+          else
+            Tooltip(
+              message: 'Download Android APK (49.4 MB)',
+              child: ListTile(
+                dense: true,
+                leading: const Icon(Icons.android, color: Color(0xFF0F766E)),
+                onTap: triggerAndroidApkDownload,
+              ),
+            ),
           const Divider(height: 1),
           Tooltip(
             message: collapsed ? 'Logout' : '',

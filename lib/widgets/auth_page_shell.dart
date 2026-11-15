@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'android_apk_download_card.dart';
 import 'brand_mark.dart';
 
 class AuthPageShell extends StatelessWidget {
@@ -292,6 +293,13 @@ class _AuthContent extends StatelessWidget {
           ),
           child: child,
         ),
+        if (kIsWeb) ...[
+          const SizedBox(height: 16),
+          AndroidApkDownloadCard(
+            compact: true,
+            darkTheme: overPhotograph,
+          ),
+        ],
         if (overPhotograph) ...[
           const SizedBox(height: 16),
           Text(

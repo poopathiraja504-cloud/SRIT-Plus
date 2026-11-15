@@ -37,6 +37,15 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     try {
       await action();
+    } on GoogleAccountLinkRequired catch (error) {
+      final linked = await _linkExistingGoogleAccount(error);
+      if (!linked && mounted) {
+        setState(
+          () => _errorMessage =
+              'Google sign-in was not completed. You can try again or sign '
+              'in with your existing email and password.',
+        );
+      }
     } on FirebaseAuthException catch (error) {
       if (mounted) {
         setState(() {
@@ -45,8 +54,123 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } on AuthServiceException catch (error) {
       if (mounted) setState(() => _errorMessage = error.message);
+    } catch (error) {
+      if (mounted) setState(() => _errorMessage = error.toString());
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<bool> _linkExistingGoogleAccount(
+    GoogleAccountLinkRequired request,
+  ) async {
+    final passwordController = TextEditingController();
+    String? linkError;
+    var isLinking = false;
+
+    Future<void> attemptLink(
+      BuildContext dialogContext,
+      StateSetter setDialogState,
+    ) async {
+      if (isLinking) return;
+      if (passwordController.text.isEmpty) {
+        setDialogState(() => linkError = 'Enter your password.');
+        return;
+      }
+
+      setDialogState(() {
+        isLinking = true;
+        linkError = null;
+      });
+      try {
+        await _authService.linkGoogleToExistingAccount(
+          email: request.email,
+          password: passwordController.text,
+          pendingCredential: request.pendingCredential,
+        );
+        if (dialogContext.mounted) {
+          Navigator.of(dialogContext).pop(true);
+        }
+      } on FirebaseAuthException catch (error) {
+        setDialogState(
+          () => linkError = AuthService.messageForFirebaseError(error),
+        );
+      } on AuthServiceException catch (error) {
+        setDialogState(() => linkError = error.message);
+      } finally {
+        if (dialogContext.mounted) {
+          setDialogState(() => isLinking = false);
+        }
+      }
+    }
+
+    try {
+      return await showDialog<bool>(
+            context: context,
+            barrierDismissible: false,
+            builder: (dialogContext) => StatefulBuilder(
+              builder: (dialogContext, setDialogState) => AlertDialog(
+                title: const Text('Verify your existing account'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'An SRIT Plus account already exists for '
+                      '${request.email}. Sign in with that account’s password '
+                      'to link Google without changing its student data.',
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: passwordController,
+                      obscureText: true,
+                      autofocus: true,
+                      enabled: !isLinking,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) =>
+                          attemptLink(dialogContext, setDialogState),
+                      decoration: const InputDecoration(
+                        labelText: 'Existing account password',
+                        prefixIcon: Icon(Icons.lock_outline),
+                      ),
+                    ),
+                    if (linkError != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        linkError!,
+                        style: TextStyle(
+                          color: Theme.of(dialogContext).colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: isLinking
+                        ? null
+                        : () => Navigator.of(dialogContext).pop(false),
+                    child: const Text('Cancel'),
+                  ),
+                  FilledButton(
+                    onPressed: isLinking
+                        ? null
+                        : () => attemptLink(dialogContext, setDialogState),
+                    child: isLinking
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Verify and link Google'),
+                  ),
+                ],
+              ),
+            ),
+          ) ??
+          false;
+    } finally {
+      passwordController.dispose();
     }
   }
 

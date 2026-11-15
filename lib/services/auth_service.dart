@@ -13,6 +13,19 @@ class AuthServiceException implements Exception {
   String toString() => message;
 }
 
+class GoogleAccountLinkRequired extends AuthServiceException {
+  const GoogleAccountLinkRequired({
+    required this.email,
+    required this.pendingCredential,
+  }) : super(
+         'An SRIT Plus account already exists for $email. Sign in with its '
+         'password to securely link Google.',
+       );
+
+  final String email;
+  final AuthCredential pendingCredential;
+}
+
 class AuthService {
   AuthService({FirebaseAuth? firebaseAuth})
     : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
@@ -64,7 +77,21 @@ class AuthService {
 
   Future<void> signInWithGoogle() async {
     if (kIsWeb) {
-      await _firebaseAuth.signInWithPopup(GoogleAuthProvider());
+      try {
+        await _firebaseAuth.signInWithPopup(GoogleAuthProvider());
+      } on FirebaseAuthException catch (error) {
+        final email = error.email;
+        final credential = error.credential;
+        if (error.code == 'account-exists-with-different-credential' &&
+            email != null &&
+            credential != null) {
+          throw GoogleAccountLinkRequired(
+            email: email,
+            pendingCredential: credential,
+          );
+        }
+        rethrow;
+      }
       return;
     }
 
@@ -78,24 +105,85 @@ class AuthService {
       await _googleInitialization;
       final googleUser = await GoogleSignIn.instance.authenticate();
       final googleAuth = googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-      );
-      await _firebaseAuth.signInWithCredential(credential);
+      final idToken = googleAuth.idToken;
+      if (idToken == null || idToken.isEmpty) {
+        throw const AuthServiceException(
+          'Google authentication did not return a valid ID token. Verify the '
+          'Android signing fingerprints and Google provider configuration in '
+          'Firebase Console.',
+        );
+      }
+      final credential = GoogleAuthProvider.credential(idToken: idToken);
+      try {
+        await _firebaseAuth.signInWithCredential(credential);
+      } on FirebaseAuthException catch (error) {
+        if (error.code == 'account-exists-with-different-credential') {
+          throw GoogleAccountLinkRequired(
+            email: error.email ?? googleUser.email,
+            pendingCredential: error.credential ?? credential,
+          );
+        }
+        rethrow;
+      }
     } on GoogleSignInException catch (error) {
       if (error.code == GoogleSignInExceptionCode.canceled) {
+        debugPrint('Google Sign-In canceled or aborted.');
         return;
       }
       throw AuthServiceException(
-        error.description ?? 'Google sign-in could not be completed.',
+        error.description ??
+            'Google sign-in could not be completed (${error.code.name}).',
       );
+    } on FirebaseAuthException {
+      rethrow;
+    } on GoogleAccountLinkRequired {
+      rethrow;
+    } on AuthServiceException {
+      rethrow;
+    } catch (error) {
+      throw AuthServiceException('Google sign-in failed: $error');
+    }
+  }
+
+  Future<void> linkGoogleToExistingAccount({
+    required String email,
+    required String password,
+    required AuthCredential pendingCredential,
+  }) async {
+    final normalizedEmail = email.trim().toLowerCase();
+    final existingAccount = await _firebaseAuth.signInWithEmailAndPassword(
+      email: normalizedEmail,
+      password: password,
+    );
+    final user = existingAccount.user;
+    if (user == null || user.email?.trim().toLowerCase() != normalizedEmail) {
+      throw const AuthServiceException(
+        'The authenticated account does not match the Google account email. '
+        'No accounts were linked.',
+      );
+    }
+
+    try {
+      await user.linkWithCredential(pendingCredential);
+    } on FirebaseAuthException catch (error) {
+      if (error.code == 'credential-already-in-use') {
+        throw const AuthServiceException(
+          'This Google account is already linked to a different SRIT Plus '
+          'account. Contact support to protect your existing student data.',
+        );
+      }
+      rethrow;
     }
   }
 
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
-    if (_googleInitialization != null) {
-      await GoogleSignIn.instance.signOut();
+    try {
+      if (_googleInitialization != null) {
+        await GoogleSignIn.instance.signOut();
+      }
+    } catch (e) {
+      debugPrint('Google sign-out cleanup error: $e');
     }
   }
 
@@ -105,6 +193,10 @@ class AuthService {
       'wrong-password' ||
       'user-not-found' => 'The email or password is incorrect.',
       'email-already-in-use' => 'An account already exists for this email.',
+      'account-exists-with-different-credential' =>
+        'An account already exists for this email with a different sign-in '
+            'method. Sign in with that method first; Firebase did not provide '
+            'a credential that can be safely linked automatically.',
       'weak-password' => 'Choose a stronger password (at least 6 characters).',
       'invalid-email' => 'Enter a valid email address.',
       'user-disabled' => 'This account has been disabled.',

@@ -49,6 +49,7 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET' || requestUrl.origin !== self.location.origin) {
     return;
   }
+  if (requestUrl.pathname === '/downloads/app-release.apk') return;
 
   event.respondWith(
     (async () => {

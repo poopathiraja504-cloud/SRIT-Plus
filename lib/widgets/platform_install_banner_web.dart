@@ -133,6 +133,9 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
   Future<void> _showInstructions({
     required String title,
     required List<String> steps,
+    String footer =
+        'The browser adds the SRIT Plus website to your Home Screen; '
+        'this does not install a separate native app.',
   }) {
     return showDialog<void>(
       context: context,
@@ -147,10 +150,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Text('${index + 1}. ${steps[index]}'),
               ),
-            const Text(
-              'The browser adds the SRIT Plus website to your Home Screen; '
-              'this does not install a separate native app.',
-            ),
+            Text(footer),
           ],
         ),
         actions: [
@@ -171,8 +171,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isInstalled ||
-        _isDismissed ||
+    if (_isDismissed ||
         (_platform != 'android' &&
             _platform != 'ios' &&
             _platform != 'ios-tablet')) {
@@ -181,6 +180,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
 
     final isAndroid = _platform == 'android';
     final isIPad = _platform == 'ios-tablet';
+    final isIos = !isAndroid;
     return SafeArea(
       bottom: false,
       child: Material(
@@ -208,7 +208,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
                   children: [
                     Text(
                       isAndroid
-                          ? 'SRIT Plus — Official College App'
+                          ? 'Install SRIT Plus Android App'
                           : isIPad
                           ? 'Install SRIT Plus on Your iPad'
                           : 'Install SRIT Plus on Your iPhone',
@@ -220,9 +220,9 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
                     const SizedBox(height: 4),
                     Text(
                       isAndroid
-                          ? 'Get quick access to: Attendance • Internal Marks • '
-                                'Semester Results • Timetable • Academics • '
-                                'College Announcements • Student Profile'
+                          ? 'Install the SRIT Plus website as a PWA for quick '
+                                'access. The native Android APK is available '
+                                'separately below the sign-in form.'
                           : 'Access your college portal directly from your '
                                 'Home Screen.',
                       style: const TextStyle(
@@ -231,40 +231,55 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
                         height: 1.4,
                       ),
                     ),
-                    if (isAndroid) ...[
-                      const SizedBox(height: 4),
+                    if (isAndroid && !_isInstalled) ...[
+                      const SizedBox(height: 8),
                       const Text(
-                        'Install Website as PWA. No native Android APK is '
-                        'currently published.',
+                        'Website PWA — installed to your Home Screen, not a '
+                        'separate native APK.',
                         style: TextStyle(
-                          color: Color(0xFF52657D),
-                          fontSize: 11,
+                          color: Color(0xFF123B72),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
+                      const SizedBox(height: 4),
                     ],
-                    const SizedBox(height: 8),
+                    if (isAndroid && _isInstalled) ...[
+                      const SizedBox(height: 8),
+                      const Text(
+                        'SRIT Plus website is installed on this device.',
+                        style: TextStyle(
+                          color: Color(0xFF0F766E),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
                     Wrap(
                       spacing: 8,
                       runSpacing: 4,
                       children: [
-                        FilledButton(
-                          onPressed:
-                              _isPrompting || _isAwaitingInstallConfirmation
-                              ? null
-                              : isAndroid
-                              ? _installOrExplain
-                              : _showIosInstructions,
-                          child: Text(
-                            isAndroid
-                                ? _isPrompting
-                                      ? 'Opening…'
-                                      : _isAwaitingInstallConfirmation
-                                      ? 'Confirming installation…'
-                                      : 'Install App'
-                                : 'Add to Home Screen',
+                        if (isAndroid && !_isInstalled)
+                          FilledButton(
+                            onPressed:
+                                _isPrompting || _isAwaitingInstallConfirmation
+                                ? null
+                                : _installOrExplain,
+                            child: Text(
+                              _isPrompting
+                                  ? 'Opening…'
+                                  : _isAwaitingInstallConfirmation
+                                  ? 'Confirming installation…'
+                                  : 'Install Now',
+                            ),
                           ),
-                        ),
-                        if (!isAndroid)
+                        if (isIos)
+                          FilledButton(
+                            onPressed: _showIosInstructions,
+                            child: const Text('Add to Home Screen'),
+                          ),
+                        if (isIos)
                           TextButton(
                             onPressed: _showIosInstructions,
                             child: const Text('How to Install'),

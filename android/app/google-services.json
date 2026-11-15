@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "609694857720-k3df4tvcqhit6lpnag5sa483urspuita.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.srit.app",
+            "certificate_hash": "2a1807d8e6a322b7afcd94651ec4cc958f1f61ba"
+          }
+        },
+        {
           "client_id": "609694857720-l8q8glmb7di5oe1oh19ifekbj548h3ld.apps.googleusercontent.com",
           "client_type": 3
         }

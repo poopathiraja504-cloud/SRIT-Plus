@@ -151,9 +151,14 @@ and the registered Firebase Messaging worker also provides a fetch handler and
 network-first app-shell caching with an offline fallback. Chrome's in-page
 install prompt requires a service worker with a `fetch` handler. Netlify
 revalidates the app shell, worker, bootstrap and manifest after deployment.
-No verified release APK or Play Store/App Store listing is configured, so the
-website does not link to an unpublished native app. The local Android release
-signing configuration uses the debug key and is not suitable for distribution.
+The website's Android and desktop download section serves the native Flutter
+APK at `/downloads/app-release.apk` (version 1.0.0, 49.4 MB). The APK is
+included in `web/downloads`, so Flutter copies it into `build/web/downloads`
+and Netlify publishes it with the website. Android users can open the download,
+allow their browser to install apps when prompted, then install SRIT Plus. The
+current local release APK uses the Android debug signing key and is not
+suitable as a permanent production signing identity. No Play Store or App
+Store listing is configured.
 Authentication, Firestore content, remote campus photographs and push
 delivery still require their respective online services.
 
