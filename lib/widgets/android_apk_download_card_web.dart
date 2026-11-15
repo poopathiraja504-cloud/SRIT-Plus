@@ -5,49 +5,11 @@ import 'package:web/web.dart' as web;
 
 import '../services/activity_analytics_service.dart';
 
-const String kAndroidApkPath = '/downloads/app-arm64-v8a-release.apk';
-const String kAndroidApkFileName = 'SRIT-PORTAL-1.0.0-arm64-v8a.apk';
+const String kAndroidApkPath = '/downloads/app-release.apk';
+const String kAndroidApkFileName = 'SRIT-PORTAL-1.0.0.apk';
 const String kAndroidApkVersion = '1.0.0';
-const String kAndroidApkSize = '19.4 MiB';
+const String kAndroidApkSize = '50.0 MiB';
 const String kAndroidPackageName = 'com.srit.app';
-const String kUniversalAndroidApkPath = '/downloads/app-release.apk';
-const String kUniversalAndroidApkFileName = 'SRIT-PORTAL-1.0.0.apk';
-const String kUniversalAndroidApkSize = '50.0 MiB';
-
-class _AndroidApkVariant {
-  const _AndroidApkVariant({
-    required this.architecture,
-    required this.size,
-    required this.path,
-    required this.fileName,
-  });
-
-  final String architecture;
-  final String size;
-  final String path;
-  final String fileName;
-}
-
-const _androidApkVariants = [
-  _AndroidApkVariant(
-    architecture: 'arm64-v8a',
-    size: '19.4 MiB',
-    path: kAndroidApkPath,
-    fileName: kAndroidApkFileName,
-  ),
-  _AndroidApkVariant(
-    architecture: 'armeabi-v7a',
-    size: '17.0 MiB',
-    path: '/downloads/app-armeabi-v7a-release.apk',
-    fileName: 'SRIT-PORTAL-1.0.0-armeabi-v7a.apk',
-  ),
-  _AndroidApkVariant(
-    architecture: 'x86_64',
-    size: '20.5 MiB',
-    path: '/downloads/app-x86_64-release.apk',
-    fileName: 'SRIT-PORTAL-1.0.0-x86_64.apk',
-  ),
-];
 
 bool get isIosBrowser {
   final navigator = web.window.navigator;
@@ -59,10 +21,7 @@ bool get isIosBrowser {
       (navigator.platform == 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
-void triggerAndroidApkDownload({
-  String path = kAndroidApkPath,
-  String fileName = kAndroidApkFileName,
-}) {
+void triggerAndroidApkDownload() {
   if (isIosBrowser) return;
   unawaited(
     ActivityAnalyticsService.instance.logActivity(
@@ -74,8 +33,8 @@ void triggerAndroidApkDownload({
   final body = web.document.body;
   if (body == null) return;
   final anchor = web.HTMLAnchorElement()
-    ..href = path
-    ..download = fileName
+    ..href = kAndroidApkPath
+    ..download = kAndroidApkFileName
     ..style.display = 'none';
   body.append(anchor);
   try {
@@ -83,57 +42,6 @@ void triggerAndroidApkDownload({
   } finally {
     anchor.remove();
   }
-}
-
-Future<void> showAndroidApkVariantPicker(BuildContext context) {
-  return showDialog<void>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Choose Android APK version'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final variant in _androidApkVariants)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.android, color: Color(0xFF006B50)),
-              title: Text(variant.architecture),
-              subtitle: Text('${variant.size} • Android APK'),
-              onTap: () {
-                Navigator.of(context).pop();
-                triggerAndroidApkDownload(
-                  path: variant.path,
-                  fileName: variant.fileName,
-                );
-              },
-            ),
-          const Divider(),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(
-              Icons.devices_rounded,
-              color: Color(0xFF006B50),
-            ),
-            title: const Text('Universal APK'),
-            subtitle: const Text('$kUniversalAndroidApkSize • larger download'),
-            onTap: () {
-              Navigator.of(context).pop();
-              triggerAndroidApkDownload(
-                path: kUniversalAndroidApkPath,
-                fileName: kUniversalAndroidApkFileName,
-              );
-            },
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-      ],
-    ),
-  );
 }
 
 Future<void> showAndroidApkInstallInstructions(BuildContext context) {
@@ -175,8 +83,8 @@ Future<void> showAndroidApkInstallInstructions(BuildContext context) {
               stepNumber: '1',
               title: 'Download the APK',
               description:
-                  'Most Android phones use arm64-v8a ($kAndroidApkSize). '
-                  'Choose another device version from "Other versions" if needed.',
+                  'Click "Download Android App" to save '
+                  '$kAndroidApkFileName ($kAndroidApkSize).',
             ),
             _instructionStep(
               stepNumber: '2',
@@ -400,7 +308,7 @@ class AndroidApkDownloadCard extends StatelessWidget {
                 Icon(Icons.android, size: 16, color: metaColor),
                 const SizedBox(width: 6),
                 Text(
-                  'v$kAndroidApkVersion  •  $kAndroidApkSize  •  arm64-v8a',
+                  'v$kAndroidApkVersion  •  $kAndroidApkSize  •  Universal APK',
                   style: TextStyle(
                     color: metaColor,
                     fontWeight: FontWeight.w700,
@@ -444,16 +352,6 @@ class AndroidApkDownloadCard extends StatelessWidget {
                 ),
                 icon: const Icon(Icons.help_outline, size: 16),
                 label: const Text('Install instructions'),
-              ),
-              TextButton.icon(
-                onPressed: () => showAndroidApkVariantPicker(context),
-                style: TextButton.styleFrom(
-                  foregroundColor: darkTheme
-                      ? const Color(0xFFB7E4D0)
-                      : const Color(0xFF00785B),
-                ),
-                icon: const Icon(Icons.devices_rounded, size: 16),
-                label: const Text('Other versions'),
               ),
             ],
           ),

@@ -592,7 +592,7 @@ class _PortalSidebar extends StatelessWidget {
             )
           else if (!isIosBrowser)
             Tooltip(
-              message: 'Download Android APK (19.4 MiB, arm64-v8a)',
+              message: 'Download Android APK (50.0 MiB, Universal)',
               child: ListTile(
                 dense: true,
                 leading: const Icon(Icons.android, color: Color(0xFF006B50)),
