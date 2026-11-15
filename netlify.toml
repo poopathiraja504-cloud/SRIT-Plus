@@ -9,7 +9,7 @@ command = "flutter build web --release"
 publish = "build/web"
 
 [[redirects]]
-from = "/downloads/*.apk"
+from = "/downloads/*"
 to = "/index.html"
 status = 404
 
