@@ -66,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen>
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFF7FAFF), Color(0xFFE7F1FF)],
+            colors: [Color(0xFFFFFFFF), Color(0xFFE8F5EF)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -83,19 +83,27 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'SRIT Plus',
+                  'SRIT PORTAL',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: const Color(0xFF123B72),
+                    color: const Color(0xFF004B39),
                     fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Sri Ramakrishna Institute of Technology',
+                  sritInstitutionName,
                   textAlign: TextAlign.center,
                   style: Theme.of(
                     context,
-                  ).textTheme.bodyMedium?.copyWith(color: Color(0xFF68788F)),
+                  ).textTheme.bodyMedium?.copyWith(color: Color(0xFF5A6B62)),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  sritInstitutionAddress,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Color(0xFF5A6B62)),
                 ),
                 const SizedBox(height: 34),
                 const SizedBox(

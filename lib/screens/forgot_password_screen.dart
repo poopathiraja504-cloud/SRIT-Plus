@@ -50,7 +50,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return AuthPageShell(
       title: 'Reset your password',
       subtitle:
-          'We will email you a link to reset your SRIT Plus password. This '
+          'We will email you a link to reset your SRIT PORTAL password. This '
           'does not change your college email password.',
       child: _emailSent
           ? Column(
@@ -58,7 +58,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 const Icon(
                   Icons.mark_email_read_outlined,
                   size: 52,
-                  color: Color(0xFF2563EB),
+                  color: Color(0xFF006B50),
                 ),
                 const SizedBox(height: 16),
                 Text(

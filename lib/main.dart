@@ -8,10 +8,12 @@ import 'firebase_options.dart';
 import 'providers/auth_state_provider.dart';
 import 'providers/campus_content_provider.dart';
 import 'providers/theme_provider.dart';
+import 'services/activity_analytics_service.dart';
 import 'screens/splash_screen.dart';
 import 'services/campus_content_service.dart';
 import 'utils/app_theme.dart';
 import 'widgets/platform_install_banner.dart';
+import 'widgets/analytics_consent_banner.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,8 +34,11 @@ Future<void> main() async {
   if (startupError == null && !kIsWeb) {
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   }
+  if (startupError == null) {
+    await ActivityAnalyticsService.instance.initialize();
+  }
 
-  runApp(SRITPlus(startupError: startupError));
+  runApp(SRITPortal(startupError: startupError));
 }
 
 @pragma('vm:entry-point')
@@ -44,8 +49,8 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   );
 }
 
-class SRITPlus extends StatelessWidget {
-  const SRITPlus({this.startupError, super.key});
+class SRITPortal extends StatelessWidget {
+  const SRITPortal({this.startupError, super.key});
 
   final Object? startupError;
 
@@ -53,7 +58,7 @@ class SRITPlus extends StatelessWidget {
   Widget build(BuildContext context) {
     if (startupError != null) {
       return MaterialApp(
-        title: 'SRIT Plus',
+        title: 'SRIT PORTAL | Sri Ramakrishna Institute of Technology',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
@@ -61,6 +66,7 @@ class SRITPlus extends StatelessWidget {
         builder: (context, child) => Column(
           children: [
             const PlatformInstallBanner(),
+            const AnalyticsConsentBanner(),
             Expanded(child: child ?? const SizedBox.shrink()),
           ],
         ),
@@ -87,7 +93,7 @@ class _ThemedApplication extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeMode = context.watch<ThemeProvider>().themeMode;
     return MaterialApp(
-      title: 'SRIT Plus',
+      title: 'SRIT PORTAL | Sri Ramakrishna Institute of Technology',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
@@ -96,6 +102,7 @@ class _ThemedApplication extends StatelessWidget {
       builder: (context, child) => Column(
         children: [
           const PlatformInstallBanner(),
+          const AnalyticsConsentBanner(),
           Expanded(child: child ?? const SizedBox.shrink()),
         ],
       ),

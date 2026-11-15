@@ -5,7 +5,7 @@ importScripts(
   'https://www.gstatic.com/firebasejs/12.19.0/firebase-messaging-compat.js',
 );
 
-const appShellCache = 'srit-plus-app-shell-v1';
+const appShellCache = 'srit-portal-app-shell-v1';
 const appShellFiles = [
   '/',
   '/index.html',
@@ -33,7 +33,7 @@ self.addEventListener('activate', (event) => {
           cacheNames
             .filter(
               (cacheName) =>
-                cacheName.startsWith('srit-plus-app-shell-') &&
+                cacheName.startsWith('srit-portal-app-shell-') &&
                 cacheName !== appShellCache,
             )
             .map((cacheName) => caches.delete(cacheName)),
@@ -71,7 +71,7 @@ self.addEventListener('fetch', (event) => {
         try {
           await cache.put(request, response.clone());
         } catch (error) {
-          console.warn('Could not cache an SRIT Plus resource:', error);
+          console.warn('Could not cache an SRIT PORTAL resource:', error);
         }
       }
       return response;
@@ -93,7 +93,7 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   const notification = payload.notification || {};
   const section = payload.data && payload.data.section;
-  const title = notification.title || 'SRIT Plus update';
+  const title = notification.title || 'SRIT PORTAL update';
   const options = {
     body: notification.body || '',
     icon: '/icons/Icon-192.png',

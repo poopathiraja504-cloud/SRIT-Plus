@@ -18,7 +18,7 @@ class GoogleAccountLinkRequired extends AuthServiceException {
     required this.email,
     required this.pendingCredential,
   }) : super(
-         'An SRIT Plus account already exists for $email. Sign in with its '
+         'An SRIT PORTAL account already exists for $email. Sign in with its '
          'password to securely link Google.',
        );
 
@@ -65,7 +65,7 @@ class AuthService {
     final user = _firebaseAuth.currentUser;
     if (user == null) {
       throw const AuthServiceException(
-        'Sign in to your SRIT Plus account before verifying your email.',
+        'Sign in to your SRIT PORTAL account before verifying your email.',
       );
     }
     if (!user.emailVerified) await user.sendEmailVerification();
@@ -168,7 +168,7 @@ class AuthService {
     } on FirebaseAuthException catch (error) {
       if (error.code == 'credential-already-in-use') {
         throw const AuthServiceException(
-          'This Google account is already linked to a different SRIT Plus '
+          'This Google account is already linked to a different SRIT PORTAL '
           'account. Contact support to protect your existing student data.',
         );
       }

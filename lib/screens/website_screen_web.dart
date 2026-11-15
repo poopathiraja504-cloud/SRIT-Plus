@@ -61,7 +61,7 @@ class _WebsiteScreenWebState extends State<WebsiteScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          tooltip: 'Back to SRIT Plus',
+          tooltip: 'Back to SRIT PORTAL',
           onPressed: () => Navigator.of(context).maybePop(),
           icon: const Icon(Icons.arrow_back_rounded),
         ),

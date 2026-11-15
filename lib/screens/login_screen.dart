@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../services/activity_analytics_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/auth_page_shell.dart';
 import 'forgot_password_screen.dart';
@@ -29,16 +32,70 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _runAuth(Future<void> Function() action) async {
+  Future<void> _runAuth(
+    Future<void> Function() action, {
+    required String method,
+    bool recordButtonClick = true,
+  }) async {
     if (_isLoading) return;
+    final analytics = ActivityAnalyticsService.instance;
+    final attemptEvent = method == 'google'
+        ? 'google_sign_in_attempt'
+        : 'email_login_attempt';
+    final successEvent = method == 'google'
+        ? 'google_sign_in_success'
+        : 'email_login_success';
+    final failureEvent = method == 'google'
+        ? 'google_sign_in_failure'
+        : 'email_login_failure';
+    if (recordButtonClick) {
+      unawaited(
+        analytics.logActivity(
+          eventName: 'login_button_click',
+          page: 'login',
+          feature: method,
+        ),
+      );
+    }
+    unawaited(
+      analytics.logActivity(
+        eventName: attemptEvent,
+        page: 'login',
+        feature: method,
+      ),
+    );
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
     try {
       await action();
+      if (_authService.currentUser != null) {
+        unawaited(
+          analytics.logActivity(
+            eventName: successEvent,
+            page: 'login',
+            feature: method,
+          ),
+        );
+      } else {
+        unawaited(
+          analytics.logActivity(
+            eventName: failureEvent,
+            page: 'login',
+            feature: method,
+          ),
+        );
+      }
     } on GoogleAccountLinkRequired catch (error) {
       final linked = await _linkExistingGoogleAccount(error);
+      unawaited(
+        analytics.logActivity(
+          eventName: linked ? successEvent : failureEvent,
+          page: 'login',
+          feature: method,
+        ),
+      );
       if (!linked && mounted) {
         setState(
           () => _errorMessage =
@@ -47,14 +104,35 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } on FirebaseAuthException catch (error) {
+      unawaited(
+        analytics.logActivity(
+          eventName: failureEvent,
+          page: 'login',
+          feature: method,
+        ),
+      );
       if (mounted) {
         setState(() {
           _errorMessage = AuthService.messageForFirebaseError(error);
         });
       }
     } on AuthServiceException catch (error) {
+      unawaited(
+        analytics.logActivity(
+          eventName: failureEvent,
+          page: 'login',
+          feature: method,
+        ),
+      );
       if (mounted) setState(() => _errorMessage = error.message);
     } catch (error) {
+      unawaited(
+        analytics.logActivity(
+          eventName: failureEvent,
+          page: 'login',
+          feature: method,
+        ),
+      );
       if (mounted) setState(() => _errorMessage = error.toString());
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -116,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'An SRIT Plus account already exists for '
+                      'An SRIT PORTAL account already exists for '
                       '${request.email}. Sign in with that account’s password '
                       'to link Google without changing its student data.',
                     ),
@@ -175,20 +253,31 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _signInWithEmail() async {
+    unawaited(
+      ActivityAnalyticsService.instance.logActivity(
+        eventName: 'login_button_click',
+        page: 'login',
+        feature: 'email',
+      ),
+    );
     if (!_formKey.currentState!.validate()) return;
-    await _runAuth(() async {
-      await _authService.signInWithEmail(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
-    });
+    await _runAuth(
+      () async {
+        await _authService.signInWithEmail(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
+      },
+      method: 'email',
+      recordButtonClick: false,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return AuthPageShell(
       title: 'Welcome Back',
-      subtitle: 'Sri Ramakrishna Institute of Technology, Coimbatore',
+      subtitle: 'Secure access to student and campus services.',
       child: Form(
         key: _formKey,
         child: Column(
@@ -197,12 +286,15 @@ class _LoginScreenState extends State<LoginScreen> {
             OutlinedButton.icon(
               onPressed: _isLoading
                   ? null
-                  : () => _runAuth(_authService.signInWithGoogle),
+                  : () => _runAuth(
+                      _authService.signInWithGoogle,
+                      method: 'google',
+                    ),
               icon: const _GoogleLogo(),
               label: const Text('Continue with Google'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF26364B),
-                side: const BorderSide(color: Color(0xFFDCE4EF)),
+                foregroundColor: const Color(0xFF26352D),
+                side: const BorderSide(color: Color(0xFFD6E5DD)),
                 minimumSize: const Size.fromHeight(50),
               ),
             ),
@@ -219,11 +311,11 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 18),
             Text(
-              'Email and password are for your SRIT Plus account; they do not '
+              'Email and password are for your SRIT PORTAL account; they do not '
               'change or use your college email password.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: const Color(0xFF65758A),
+                color: const Color(0xFF5A6B62),
                 height: 1.4,
               ),
             ),

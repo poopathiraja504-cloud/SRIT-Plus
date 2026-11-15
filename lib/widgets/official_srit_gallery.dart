@@ -373,7 +373,7 @@ class _PhotoUnavailable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const ColoredBox(
-      color: Color(0xFF1E3552),
+      color: Color(0xFF003D2E),
       child: Center(
         child: Icon(
           Icons.broken_image_outlined,

@@ -25,6 +25,7 @@ class DefaultFirebaseOptions {
     projectId: 'srit-app-d51f4',
     authDomain: 'srit-app-d51f4.firebaseapp.com',
     storageBucket: 'srit-app-d51f4.firebasestorage.app',
+    measurementId: 'G-S0HR4P6TFK',
   );
 
   static const FirebaseOptions android = FirebaseOptions(

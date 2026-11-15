@@ -12,9 +12,9 @@ import 'package:srit_connect/screens/campus_pages.dart';
 import 'package:srit_connect/screens/splash_screen.dart';
 
 void main() {
-  testWidgets('splash shows SRIT Plus branding', (tester) async {
+  testWidgets('splash shows SRIT PORTAL branding', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: SplashScreen()));
-    expect(find.text('SRIT Plus'), findsOneWidget);
+    expect(find.text('SRIT PORTAL'), findsOneWidget);
     expect(
       find.text('Sri Ramakrishna Institute of Technology'),
       findsOneWidget,

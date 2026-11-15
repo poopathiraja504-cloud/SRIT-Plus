@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:js_interop';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,8 +10,11 @@ import '../models/campus_update.dart';
 import '../providers/campus_content_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
+import '../services/activity_analytics_service.dart';
 import '../services/campus_links.dart';
+import '../widgets/analytics_consent_banner.dart';
 import '../widgets/android_apk_download_card.dart';
+import '../widgets/brand_mark.dart';
 import '../widgets/official_srit_gallery.dart';
 import 'campus_pages.dart';
 
@@ -128,6 +132,7 @@ class _WebPortalShellState extends State<WebPortalShell> {
     _route = widget.initialSection == null
         ? _routeFromLocation()
         : _routeForSection(widget.initialSection!);
+    unawaited(ActivityAnalyticsService.instance.logPageVisit(_route));
     _popStateListener = ((web.Event _) => _handlePopState()).toJS;
     web.window.addEventListener('popstate', _popStateListener);
   }
@@ -142,6 +147,7 @@ class _WebPortalShellState extends State<WebPortalShell> {
         _previousRoutes.add(_route);
         _route = nextRoute;
         _writeRoute(nextRoute, replace: true);
+        unawaited(ActivityAnalyticsService.instance.logPageVisit(nextRoute));
       }
     }
   }
@@ -195,7 +201,7 @@ class _WebPortalShellState extends State<WebPortalShell> {
     final section = _sectionForRoute(route);
     return section?.title ??
         switch (route) {
-          'dashboard' || 'my-dashboard' => 'SRIT Plus',
+          'dashboard' || 'my-dashboard' => 'SRIT PORTAL',
           'profile' => 'My Profile',
           'personal-details' => 'Personal Details',
           'academic-details' => 'Academic Details',
@@ -207,7 +213,7 @@ class _WebPortalShellState extends State<WebPortalShell> {
           'announcements' => 'Announcements',
           'gallery' => 'Campus Gallery',
           'feedback' => 'Feedback',
-          _ => 'SRIT Plus',
+          _ => 'SRIT PORTAL',
         };
   }
 
@@ -237,6 +243,10 @@ class _WebPortalShellState extends State<WebPortalShell> {
     }
     _previousRoutes.add(_route);
     _writeRoute(nextRoute);
+    unawaited(
+      ActivityAnalyticsService.instance.logNavigationClick(nextRoute),
+    );
+    unawaited(ActivityAnalyticsService.instance.logPageVisit(nextRoute));
     setState(() => _route = nextRoute);
     _scaffoldKey.currentState?.closeDrawer();
   }
@@ -253,6 +263,10 @@ class _WebPortalShellState extends State<WebPortalShell> {
     } else {
       _previousRoutes.add(_route);
     }
+    unawaited(
+      ActivityAnalyticsService.instance.logNavigationClick(nextRoute),
+    );
+    unawaited(ActivityAnalyticsService.instance.logPageVisit(nextRoute));
     setState(() => _route = nextRoute);
     _scaffoldKey.currentState?.closeDrawer();
   }
@@ -352,9 +366,17 @@ class _WebPortalShellState extends State<WebPortalShell> {
                 onPressed: _goBack,
                 icon: const Icon(Icons.arrow_back_rounded),
               ),
-        title: Text(
-          _titleForRoute(_route),
-          style: const TextStyle(fontWeight: FontWeight.w800),
+        title: Row(
+          children: [
+            const BrandMark(size: 34),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                _titleForRoute(_route),
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+            ),
+          ],
         ),
         actions: [
           if (!isDesktop && _route != 'dashboard' && _route != 'my-dashboard')
@@ -452,44 +474,56 @@ class _PortalSidebar extends StatelessWidget {
             ),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF1E5BB1), Color(0xFF123B72)],
+                colors: [Color(0xFF00785B), Color(0xFF004B39)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
             ),
             child: collapsed
-                ? Center(child: _UserAvatar(user: user, radius: 25))
-                : Row(
+                ? const Center(
+                    child: BrandMark(size: 54),
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _UserAvatar(user: user, radius: 26),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              displayName?.isNotEmpty == true
-                                  ? displayName!
-                                  : 'SRIT Plus account',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                              ),
+                      const InstitutionBranding(
+                        logoSize: 48,
+                        textColor: Colors.white,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          _UserAvatar(user: user, radius: 24),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  displayName?.isNotEmpty == true
+                                      ? displayName!
+                                      : 'Campus community',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  user?.email ?? 'Sign-in required',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              user?.email ?? 'Sign-in required',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -510,7 +544,7 @@ class _PortalSidebar extends StatelessWidget {
                       child: Text(
                         group.label,
                         style: const TextStyle(
-                          color: Color(0xFF8290A4),
+                          color: Color(0xFF76877D),
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 1.15,
@@ -524,8 +558,8 @@ class _PortalSidebar extends StatelessWidget {
                         message: collapsed ? entry.label : '',
                         child: ListTile(
                           selected: selectedRoute == entry.route,
-                          selectedColor: const Color(0xFF174A8B),
-                          selectedTileColor: const Color(0xFFEAF2FF),
+                          selectedColor: const Color(0xFF00543F),
+                          selectedTileColor: const Color(0xFFE8F5EF),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(13),
                           ),
@@ -558,10 +592,10 @@ class _PortalSidebar extends StatelessWidget {
             )
           else
             Tooltip(
-              message: 'Download Android APK (49.4 MB)',
+              message: 'Download Android APK (50.0 MiB)',
               child: ListTile(
                 dense: true,
-                leading: const Icon(Icons.android, color: Color(0xFF0F766E)),
+                leading: const Icon(Icons.android, color: Color(0xFF006B50)),
                 onTap: triggerAndroidApkDownload,
               ),
             ),
@@ -1084,9 +1118,9 @@ class _SettingsPage extends StatelessWidget {
           icon: Icons.lock_outline_rounded,
           title: 'Password settings',
           subtitle: hasPasswordProvider
-              ? 'Reset the SRIT Plus account password through Firebase email.'
+              ? 'Reset the SRIT PORTAL account password through Firebase email.'
               : 'This account uses Google sign-in; its password is managed by '
-                    'Google, not SRIT Plus.',
+                    'Google, not SRIT PORTAL.',
           child: hasPasswordProvider
               ? Align(
                   alignment: Alignment.centerLeft,
@@ -1121,9 +1155,20 @@ class _SettingsPage extends StatelessWidget {
           subtitle:
               'Your dashboard uses the signed-in Firebase account. Student '
               'records are not connected to this project.',
-          child: Text(
-            'Email verification: ${user?.emailVerified == true ? 'verified' : 'not verified'}'
-            '\nSign-in provider: ${providerIds.isEmpty ? 'unavailable' : providerIds.join(', ')}',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Email verification: ${user?.emailVerified == true ? 'verified' : 'not verified'}'
+                '\nSign-in provider: ${providerIds.isEmpty ? 'unavailable' : providerIds.join(', ')}',
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () => showAnalyticsConsentDialog(context),
+                icon: const Icon(Icons.analytics_outlined),
+                label: const Text('Manage analytics preferences'),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 14),
@@ -1135,7 +1180,7 @@ class _SettingsPage extends StatelessWidget {
                   : Icons.light_mode_outlined,
             ),
             title: const Text('Theme'),
-            subtitle: const Text('Use the light or dark SRIT Plus theme.'),
+            subtitle: const Text('Use the light or dark SRIT PORTAL theme.'),
             value: theme.isDarkMode,
             onChanged: theme.toggleDarkMode,
           ),
@@ -1147,7 +1192,7 @@ class _SettingsPage extends StatelessWidget {
               leading: Icon(Icons.info_outline_rounded),
               title: Text('Password is managed by Google'),
               subtitle: Text(
-                'SRIT Plus cannot change a Google account password. Use '
+                'SRIT PORTAL cannot change a Google account password. Use '
                 'Google Account settings to manage it.',
               ),
             ),
@@ -1158,7 +1203,7 @@ class _SettingsPage extends StatelessWidget {
           child: ListTile(
             leading: const Icon(Icons.logout_rounded),
             title: const Text('Log out'),
-            subtitle: const Text('Sign out of this SRIT Plus account.'),
+            subtitle: const Text('Sign out of this SRIT PORTAL account.'),
             onTap: onSignOut,
           ),
         ),
@@ -1319,7 +1364,7 @@ class _FeedbackPage extends StatelessWidget {
     final contactUri = Uri(
       scheme: 'mailto',
       path: 'principal@sritcbe.ac.in',
-      queryParameters: const {'subject': 'SRIT Plus feedback'},
+      queryParameters: const {'subject': 'SRIT PORTAL feedback'},
     );
     return Center(
       child: ConstrainedBox(
@@ -1367,7 +1412,7 @@ class _UnknownRoutePage extends StatelessWidget {
     return const Center(
       child: Padding(
         padding: EdgeInsets.all(24),
-        child: Text('This SRIT Plus page is not available.'),
+        child: Text('This SRIT PORTAL page is not available.'),
       ),
     );
   }

@@ -1,13 +1,24 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
 
+import '../services/activity_analytics_service.dart';
+
 const String kAndroidApkPath = '/downloads/app-release.apk';
-const String kAndroidApkFileName = 'SRIT-Plus-1.0.0.apk';
+const String kAndroidApkFileName = 'SRIT-PORTAL-1.0.0.apk';
 const String kAndroidApkVersion = '1.0.0';
-const String kAndroidApkSize = '49.4 MB';
+const String kAndroidApkSize = '50.0 MiB';
 const String kAndroidPackageName = 'com.srit.app';
 
 void triggerAndroidApkDownload() {
+  unawaited(
+    ActivityAnalyticsService.instance.logActivity(
+      eventName: 'app_install_interaction',
+      page: 'installation',
+      feature: 'download_apk',
+    ),
+  );
   final body = web.document.body;
   if (body == null) return;
   final anchor = web.HTMLAnchorElement()
@@ -41,7 +52,7 @@ Future<void> showAndroidApkInstallInstructions(BuildContext context) {
           const SizedBox(width: 12),
           const Expanded(
             child: Text(
-              'Install SRIT Plus Android App',
+              'Install SRIT PORTAL Android App',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
@@ -54,7 +65,7 @@ Future<void> showAndroidApkInstallInstructions(BuildContext context) {
           children: [
             const Text(
               'Follow these simple steps on your Android device to install the official native app:',
-              style: TextStyle(fontSize: 13, color: Color(0xFF475569)),
+              style: TextStyle(fontSize: 13, color: Color(0xFF46534B)),
             ),
             const SizedBox(height: 16),
             _instructionStep(
@@ -79,7 +90,7 @@ Future<void> showAndroidApkInstallInstructions(BuildContext context) {
               stepNumber: '4',
               title: 'Complete Installation',
               description:
-                  'Tap "Install". Once finished, tap "Open" to launch SRIT Plus.',
+                  'Tap "Install". Once finished, tap "Open" to launch SRIT PORTAL.',
             ),
             const Divider(height: 24),
             Container(
@@ -87,18 +98,18 @@ Future<void> showAndroidApkInstallInstructions(BuildContext context) {
               decoration: BoxDecoration(
                 color: const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: const Color(0xFFD6E3DB)),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.verified, color: Color(0xFF0F766E), size: 20),
+                  Icon(Icons.verified, color: Color(0xFF006B50), size: 20),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Official Android Package: $kAndroidPackageName\nVersion: $kAndroidApkVersion • Size: $kAndroidApkSize',
                       style: TextStyle(
                         fontSize: 11,
-                        color: Color(0xFF334155),
+                        color: Color(0xFF34433A),
                         fontWeight: FontWeight.w600,
                         height: 1.35,
                       ),
@@ -143,7 +154,7 @@ Widget _instructionStep({
           height: 24,
           alignment: Alignment.center,
           decoration: const BoxDecoration(
-            color: Color(0xFF1E5BB1),
+            color: Color(0xFF00785B),
             shape: BoxShape.circle,
           ),
           child: Text(
@@ -165,7 +176,7 @@ Widget _instructionStep({
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 13,
-                  color: Color(0xFF1E293B),
+                  color: Color(0xFF26352D),
                 ),
               ),
               const SizedBox(height: 2),
@@ -173,7 +184,7 @@ Widget _instructionStep({
                 description,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF64748B),
+                  color: Color(0xFF617067),
                   height: 1.35,
                 ),
               ),
@@ -198,18 +209,18 @@ class AndroidApkDownloadCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bgColor = darkTheme
-        ? const Color(0xFF0F2B52).withValues(alpha: 0.92)
+        ? const Color(0xFF063F32).withValues(alpha: 0.92)
         : Colors.white;
     final borderColor = darkTheme
-        ? const Color(0xFF2A5082)
-        : const Color(0xFFDCE6F3);
-    final titleColor = darkTheme ? Colors.white : const Color(0xFF123B72);
+        ? const Color(0xFF34745C)
+        : const Color(0xFFD0E4D9);
+    final titleColor = darkTheme ? Colors.white : const Color(0xFF004B39);
     final subtitleColor = darkTheme
-        ? const Color(0xFFD2E1F5)
-        : const Color(0xFF52657D);
+        ? const Color(0xFFE1F0E8)
+        : const Color(0xFF52665B);
     final metaColor = darkTheme
-        ? const Color(0xFFFFDA82)
-        : const Color(0xFF0F766E);
+        ? const Color(0xFFB7E4D0)
+        : const Color(0xFF006B50);
 
     return Container(
       padding: EdgeInsets.all(compact ? 12 : 16),
@@ -247,7 +258,7 @@ class AndroidApkDownloadCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'SRIT Plus',
+                      'SRIT PORTAL',
                       style: TextStyle(
                         color: titleColor,
                         fontWeight: FontWeight.w800,
@@ -273,8 +284,8 @@ class AndroidApkDownloadCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: darkTheme
-                  ? const Color(0xFF173868)
-                  : const Color(0xFFF1F6FD),
+                  ? const Color(0xFF0E503D)
+                  : const Color(0xFFE8F5EF),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -306,7 +317,7 @@ class AndroidApkDownloadCard extends StatelessWidget {
               FilledButton.icon(
                 onPressed: triggerAndroidApkDownload,
                 style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F766E),
+                  backgroundColor: const Color(0xFF006B50),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -326,8 +337,8 @@ class AndroidApkDownloadCard extends StatelessWidget {
                 onPressed: () => showAndroidApkInstallInstructions(context),
                 style: TextButton.styleFrom(
                   foregroundColor: darkTheme
-                      ? const Color(0xFFFFDA82)
-                      : const Color(0xFF1E5BB1),
+                      ? const Color(0xFFB7E4D0)
+                      : const Color(0xFF00785B),
                 ),
                 icon: const Icon(Icons.help_outline, size: 16),
                 label: const Text('Install instructions'),
@@ -353,7 +364,7 @@ class AndroidApkDownloadButton extends StatelessWidget {
     return FilledButton.icon(
       onPressed: triggerAndroidApkDownload,
       style: FilledButton.styleFrom(
-        backgroundColor: const Color(0xFF0F766E),
+        backgroundColor: const Color(0xFF006B50),
         foregroundColor: Colors.white,
       ),
       icon: const Icon(Icons.download, size: 18),

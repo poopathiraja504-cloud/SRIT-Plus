@@ -9,10 +9,12 @@ import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/campus_links.dart';
 import '../models/campus_update.dart';
+import '../services/activity_analytics_service.dart';
 import '../providers/campus_content_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/push_notification_service.dart';
 import '../widgets/brand_mark.dart';
+import '../widgets/analytics_consent_banner.dart';
 import '../widgets/official_srit_gallery.dart';
 import 'web_portal_shell.dart';
 import 'campus_pages.dart';
@@ -42,12 +44,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen(
       _showForegroundNotification,
     );
+    if (!kIsWeb) {
+      unawaited(
+        ActivityAnalyticsService.instance.logPageVisit('dashboard'),
+      );
+    }
     unawaited(_openInitialNotification());
     _openSectionFromWebUrl();
   }
 
   Future<void> _signOut() async {
     setState(() => _isSigningOut = true);
+    unawaited(
+      ActivityAnalyticsService.instance.logActivity(
+        eventName: 'logout',
+        page: 'dashboard',
+        feature: 'dashboard',
+      ),
+    );
     try {
       await _pushNotificationService.unregisterCurrentDevice(
         AuthService().currentUser,
@@ -94,7 +108,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       await _pushNotificationService.enableForUser(user);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('SRIT Plus notifications are enabled.')),
+          const SnackBar(content: Text('SRIT PORTAL notifications are enabled.')),
         );
       }
     } on PushNotificationException catch (error) {
@@ -142,11 +156,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void _openSection(String title) {
     for (final section in campusSections) {
       if (section.title == title) {
+        unawaited(
+          ActivityAnalyticsService.instance.logNavigationClick(section.title),
+        );
+        unawaited(
+          ActivityAnalyticsService.instance.logPageVisit(section.title),
+        );
         if (mounted) setState(() => _selectedSection = section);
         return;
       }
     }
     if (title == 'Home' && mounted) {
+      unawaited(
+        ActivityAnalyticsService.instance.logNavigationClick('dashboard'),
+      );
+      unawaited(
+        ActivityAnalyticsService.instance.logPageVisit('dashboard'),
+      );
       setState(() => _selectedSection = null);
     }
   }
@@ -183,6 +209,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _selectSection(CampusSection? section) {
     Navigator.of(context).pop();
+    final route = section?.title ?? 'dashboard';
+    unawaited(
+      ActivityAnalyticsService.instance.logNavigationClick(route),
+    );
+    unawaited(ActivityAnalyticsService.instance.logPageVisit(route));
     setState(() => _selectedSection = section);
   }
 
@@ -218,9 +249,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     };
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          selectedTitle == 'Home' ? 'SRIT Plus' : selectedTitle,
-          style: const TextStyle(fontWeight: FontWeight.w800),
+        title: Row(
+          children: [
+            const BrandMark(size: 34),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                selectedTitle == 'Home' ? 'SRIT PORTAL' : selectedTitle,
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+            ),
+          ],
         ),
         actions: [
           if (_isSigningOut)
@@ -257,7 +296,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: Text(
                         'CAMPUS',
                         style: TextStyle(
-                          color: Color(0xFF8492A6),
+                          color: Color(0xFF76877D),
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 1.2,
@@ -275,6 +314,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         selected: _selectedSection == section,
                         onTap: () => _selectSection(section),
                       ),
+                    ),
+                    _DrawerItem(
+                      icon: Icons.privacy_tip_outlined,
+                      title: 'Analytics preferences',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        unawaited(
+                          ActivityAnalyticsService.instance.logNavigationClick(
+                            'settings',
+                          ),
+                        );
+                        unawaited(
+                          ActivityAnalyticsService.instance.logPageVisit(
+                            'settings',
+                          ),
+                        );
+                        showAnalyticsConsentDialog(context);
+                      },
                     ),
                     _DrawerItem(
                       icon: Icons.language_rounded,
@@ -400,7 +457,7 @@ class _ProfileHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF1E5BB1), Color(0xFF123B72)],
+          colors: [Color(0xFF00785B), Color(0xFF004B39)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -408,7 +465,10 @@ class _ProfileHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const BrandMark(size: 58),
+          const InstitutionBranding(
+            logoSize: 50,
+            textColor: Colors.white,
+          ),
           const SizedBox(height: 18),
           Text(
             name?.isNotEmpty == true ? name! : 'Campus community',
@@ -420,7 +480,7 @@ class _ProfileHeader extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            email?.isNotEmpty == true ? email! : 'SRIT Plus',
+            email?.isNotEmpty == true ? email! : 'SRIT PORTAL',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.8),
               fontSize: 13,
@@ -451,8 +511,8 @@ class _DrawerItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: ListTile(
         selected: selected,
-        selectedColor: const Color(0xFF174A8B),
-        selectedTileColor: const Color(0xFFEAF2FF),
+        selectedColor: const Color(0xFF00543F),
+        selectedTileColor: const Color(0xFFE8F5EF),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         leading: Icon(icon, size: 21),
         title: Text(title, style: const TextStyle(fontSize: 14)),
@@ -579,7 +639,7 @@ class _HeroBanner extends StatelessWidget {
               'assets/images/srit_campus_background.jpg',
               fit: BoxFit.cover,
               errorBuilder: (_, _, _) => const ColoredBox(
-                color: Color(0xFF123B72),
+                color: Color(0xFF004B39),
                 child: Center(
                   child: Icon(
                     Icons.account_balance_rounded,
@@ -607,7 +667,7 @@ class _HeroBanner extends StatelessWidget {
                   const Text(
                     'SRI RAMAKRISHNA INSTITUTE OF TECHNOLOGY',
                     style: TextStyle(
-                      color: Color(0xFFFFD978),
+                      color: Color(0xFFB7E4D0),
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 1.15,
@@ -757,10 +817,10 @@ class _CampusUpdateCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2467CF).withValues(alpha: 0.09),
+                  color: const Color(0xFF006B50).withValues(alpha: 0.09),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(icon, color: const Color(0xFF2467CF)),
+                child: Icon(icon, color: const Color(0xFF006B50)),
               ),
               const SizedBox(width: 13),
               Expanded(
@@ -771,7 +831,7 @@ class _CampusUpdateCard extends StatelessWidget {
                       Text(
                         dateLabel,
                         style: const TextStyle(
-                          color: Color(0xFFAD8132),
+                          color: Color(0xFF4A9A75),
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
                         ),
@@ -786,7 +846,7 @@ class _CampusUpdateCard extends StatelessWidget {
                     Text(
                       item.description,
                       style: const TextStyle(
-                        color: Color(0xFF65758A),
+                        color: Color(0xFF5A6B62),
                         fontSize: 12,
                         height: 1.45,
                       ),
@@ -828,7 +888,7 @@ class _SectionHeading extends StatelessWidget {
             onPressed: onTap,
             style: TextButton.styleFrom(
               visualDensity: VisualDensity.compact,
-              foregroundColor: const Color(0xFF245EA9),
+              foregroundColor: const Color(0xFF006B50),
             ),
             child: Text(trailing!),
           ),
@@ -971,10 +1031,10 @@ class _PrincipalCard extends StatelessWidget {
                 errorBuilder: (_, _, _) => Container(
                   width: 76,
                   height: 88,
-                  color: const Color(0xFFE9F0FA),
+                  color: const Color(0xFFE8F5EF),
                   child: const Icon(
                     Icons.person_outline_rounded,
-                    color: Color(0xFF245EA9),
+                    color: Color(0xFF006B50),
                     size: 38,
                   ),
                 ),
@@ -993,7 +1053,7 @@ class _PrincipalCard extends StatelessWidget {
                   Text(
                     'Principal, SRIT',
                     style: TextStyle(
-                      color: Color(0xFFAD8132),
+                      color: Color(0xFF4A9A75),
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -1002,7 +1062,7 @@ class _PrincipalCard extends StatelessWidget {
                     'SRIT’s vision is to deliver quality, value-based '
                     'education and build centres of excellence.',
                     style: TextStyle(
-                      color: Color(0xFF65758A),
+                      color: Color(0xFF5A6B62),
                       fontSize: 12,
                       height: 1.45,
                     ),
@@ -1173,7 +1233,7 @@ class _PortalFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFF123B72),
+      color: const Color(0xFF004B39),
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
@@ -1291,7 +1351,7 @@ class _Fact extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            color: Color(0xFF174A8B),
+            color: Color(0xFF00543F),
             fontSize: 21,
             fontWeight: FontWeight.w800,
           ),

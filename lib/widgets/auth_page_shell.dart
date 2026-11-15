@@ -127,15 +127,33 @@ class _CampusWelcomePanel extends StatelessWidget {
                     Text(
                       'SRI RAMAKRISHNA INSTITUTE OF TECHNOLOGY',
                       style: TextStyle(
-                        color: Color(0xFFFFDA82),
+                        color: Color(0xFFB7E4D0),
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.6,
                       ),
                     ),
                     SizedBox(height: 18),
+                    Row(
+                      children: [
+                        BrandMark(size: 58),
+                        SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            'Pachapalayam (Post), Perur Chettipalayam, '
+                            'Coimbatore - 641 010, INDIA',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 18),
                     Text(
-                      'Welcome to SRIT Plus',
+                      'Welcome to SRIT PORTAL',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 42,
@@ -147,7 +165,7 @@ class _CampusWelcomePanel extends StatelessWidget {
                     Text(
                       'Your campus, connected.',
                       style: TextStyle(
-                        color: Color(0xFFE6EDF5),
+                        color: Color(0xFFEAF4EF),
                         fontSize: 18,
                         height: 1.5,
                       ),
@@ -175,7 +193,7 @@ class _CampusPhotograph extends StatelessWidget {
             'assets/images/srit_campus_background.jpg',
             fit: BoxFit.cover,
             errorBuilder: (_, _, _) =>
-                const ColoredBox(color: Color(0xFF123B72)),
+                const ColoredBox(color: Color(0xFF004B39)),
           );
         }
 
@@ -203,7 +221,7 @@ class _CampusPhotograph extends StatelessWidget {
             'assets/images/srit_campus_background.jpg',
             fit: BoxFit.cover,
             errorBuilder: (_, _, _) =>
-                const ColoredBox(color: Color(0xFF123B72)),
+                const ColoredBox(color: Color(0xFF004B39)),
           ),
         );
       },
@@ -246,13 +264,16 @@ class _AuthContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Center(child: BrandMark(size: overPhotograph ? 68 : 72)),
+        InstitutionBranding(
+          logoSize: overPhotograph ? 56 : 60,
+          textColor: const Color(0xFF004B39),
+        ),
         const SizedBox(height: 14),
         Text(
           title,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            color: overPhotograph ? Colors.white : const Color(0xFF172B45),
+            color: overPhotograph ? Colors.white : const Color(0xFF004B39),
             fontWeight: FontWeight.w800,
             letterSpacing: -0.5,
           ),
@@ -264,7 +285,7 @@ class _AuthContent extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: overPhotograph
                 ? Colors.white.withValues(alpha: 0.9)
-                : const Color(0xFF607086),
+                : const Color(0xFF5A6B62),
             height: 1.5,
           ),
         ),
@@ -279,7 +300,7 @@ class _AuthContent extends StatelessWidget {
             border: Border.all(
               color: overPhotograph
                   ? Colors.white.withValues(alpha: 0.85)
-                  : const Color(0xFFE4EAF2),
+                  : const Color(0xFFD6E5DD),
             ),
             boxShadow: [
               BoxShadow(
@@ -303,10 +324,11 @@ class _AuthContent extends StatelessWidget {
         if (overPhotograph) ...[
           const SizedBox(height: 16),
           Text(
-            'SRI RAMAKRISHNA INSTITUTE OF TECHNOLOGY',
+            'Pachapalayam (Post), Perur Chettipalayam, '
+            'Coimbatore - 641 010, INDIA',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: const Color(0xFFFFDA82),
+              color: const Color(0xFFB7E4D0),
               fontWeight: FontWeight.w700,
               letterSpacing: 1.1,
             ),

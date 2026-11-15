@@ -1,6 +1,6 @@
-# SRIT Plus
+# SRIT PORTAL
 
-SRIT Plus is a responsive Flutter application for Sri Ramakrishna Institute of
+SRIT PORTAL is a responsive Flutter application for Sri Ramakrishna Institute of
 Technology, Coimbatore. It targets Android, iOS and web, and includes Firebase
 authentication, Firestore-powered campus updates, a responsive campus
 dashboard, and an in-app SRIT website.
@@ -68,7 +68,7 @@ Before running:
    unverified email/password accounts see a verification screen until they
    verify. Existing Firebase users are not deleted or migrated. Google sign-in
    remains unchanged. Email verification and Firebase password reset concern
-   SRIT Plus accounts, not institutional email passwords.
+   SRIT PORTAL accounts, not institutional email passwords.
 5. To enable push notifications, enable Firebase Cloud Messaging for the same
    Firebase project. Upload an APNs authentication key in Firebase Console and
    enable Push Notifications for the iOS App ID and signing profile. Android
@@ -87,8 +87,9 @@ Before running:
    trusted server or Cloud Function with server-side credentials to send
    notifications. No notification-sending backend is configured in this
    repository.
-6. Create the Cloud Firestore database and deploy the read-only content rules
-   and per-user FCM device-token rules from this repository:
+6. Create the Cloud Firestore database and deploy the read-only content rules,
+   per-user FCM device-token rules, and consent-gated activity-event rules from
+   this repository:
 
    ```powershell
    firebase login
@@ -120,6 +121,14 @@ other content. Signing out removes the current device token when messaging is
 configured. Firebase manages expiration for tokens belonging to uninstalled
 apps.
 
+Firebase Analytics is disabled until a user opts in. Consent can be declined or
+changed in portal settings. When enabled, the app records only allowlisted
+feature and authentication outcome events; it never sends passwords, tokens,
+email addresses, or profile details. Authenticated activity events are appended
+under `users/{authenticatedUid}/activity` with a server timestamp and can only
+be created by that same user. Activity records are not readable from clients;
+aggregate usage is handled by Firebase Analytics.
+
 ## Campus information and branding
 
 Campus pages link to official SRIT information for programmes, departments,
@@ -146,25 +155,29 @@ On supported Android browsers, the website offers the browser's native PWA
 install prompt and falls back to browser-menu instructions when that prompt is
 unavailable. On iPhone and iPad, it explains Safari's Share → Add to Home
 Screen flow. Standalone installations do not show the banner, and dismissals
-are remembered by the browser. The PWA manifest provides the SRIT Plus icons,
+are remembered by the browser. The PWA manifest provides the SRIT PORTAL icons,
 and the registered Firebase Messaging worker also provides a fetch handler and
 network-first app-shell caching with an offline fallback. Chrome's in-page
 install prompt requires a service worker with a `fetch` handler. Netlify
 revalidates the app shell, worker, bootstrap and manifest after deployment.
 The website's Android and desktop download section serves the native Flutter
-APK at `/downloads/app-release.apk` (version 1.0.0, 49.4 MB). The APK is
-included in `web/downloads`, so Flutter copies it into `build/web/downloads`
+APK at `/downloads/app-release.apk` (version 1.0.0, 50.0 MiB / 52.4 MB). The
+APK is included in `web/downloads`, so Flutter copies it into `build/web/downloads`
 and Netlify publishes it with the website. Android users can open the download,
-allow their browser to install apps when prompted, then install SRIT Plus. The
+allow their browser to install apps when prompted, then install SRIT PORTAL. The
 current local release APK uses the Android debug signing key and is not
 suitable as a permanent production signing identity. No Play Store or App
 Store listing is configured.
+The web build also publishes the Google Search Console verification file,
+`robots.txt`, and `sitemap.xml`. SEO metadata and structured data use the
+official institutional emblem in the web icon set. Search ranking or indexing
+timelines are controlled by Google and are not guaranteed.
 Authentication, Firestore content, remote campus photographs and push
 delivery still require their respective online services.
 
 Firebase Authentication currently provides Google sign-in and
 email/password accounts. Email/password and Firebase password reset are for
-SRIT Plus accounts; they do not authenticate or reset institutional Google
+SRIT PORTAL accounts; they do not authenticate or reset institutional Google
 Workspace passwords. Google sign-in is not restricted to an administrator-
 approved SRIT Workspace domain or allowlist in this project. Configure the
 institution-approved eligibility policy before presenting it as
@@ -216,8 +229,8 @@ flutter build web --release
 The root-level `netlify.toml` configures the Netlify Flutter build plugin to
 install the stable Flutter SDK, build the release web app, publish `build/web`,
 and route client-side paths back to `index.html`. The plugin is pinned in the
-root `package.json`/`package-lock.json`. In the Netlify site settings, connect
-this repository (`poopathiraja504-cloud/SRIT-Plus`) and use the `main` branch.
+root `package.json`/`package-lock.json`. The existing site is connected to
+`poopathiraja504-cloud/SRIT-Plus` on the `main` branch.
 Leave the build command and publish directory inherited from `netlify.toml`,
 or set them to the same values:
 

@@ -45,7 +45,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Academics',
     icon: Icons.menu_book_rounded,
-    color: const Color(0xFF2467CF),
+    color: const Color(0xFF006B50),
     intro:
         'Explore academic resources and the latest information from SRIT. '
         'Use the official site for current schedules and documents.',
@@ -87,7 +87,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Admission',
     icon: Icons.assignment_turned_in_rounded,
-    color: const Color(0xFF0F9D8A),
+    color: const Color(0xFF15906F),
     intro:
         'Find programme and admission information. Eligibility, fees and '
         'scholarship terms may change; confirm current details with SRIT.',
@@ -119,7 +119,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'About Us',
     icon: Icons.account_balance_rounded,
-    color: const Color(0xFF8A5CC4),
+    color: const Color(0xFF4E9A76),
     intro:
         'Sri Ramakrishna Institute of Technology is an autonomous engineering '
         'institution in Coimbatore, established in 2002.',
@@ -174,7 +174,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Placement',
     icon: Icons.work_outline_rounded,
-    color: const Color(0xFFEF8A32),
+    color: const Color(0xFF65A653),
     intro:
         'Discover career preparation and placement resources. For current '
         'statistics and recruiter lists, visit the official placement pages.',
@@ -216,7 +216,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Research',
     icon: Icons.science_outlined,
-    color: const Color(0xFFDF4E6A),
+    color: const Color(0xFF77AA67),
     intro:
         'Learn about research activity and innovation at SRIT. Browse the '
         'official site for updated publications and project information.',
@@ -258,7 +258,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'COE',
     icon: Icons.stars_rounded,
-    color: const Color(0xFF5969D9),
+    color: const Color(0xFF318F6D),
     intro:
         'Centres of Excellence provide opportunities for applied learning, '
         'experimentation and emerging technology exploration.',
@@ -290,7 +290,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Online Fee Payment',
     icon: Icons.payments_outlined,
-    color: const Color(0xFF28A66A),
+    color: const Color(0xFF2C9B6F),
     intro:
         'Continue to the SRIT website to access the current online fee '
         'payment service. Verify the destination before entering payment '
@@ -309,7 +309,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Contact Us',
     icon: Icons.contact_page_outlined,
-    color: const Color(0xFF2388A8),
+    color: const Color(0xFF267F5D),
     intro:
         'Sri Ramakrishna Institute of Technology, Coimbatore, Tamil Nadu, '
         'India. Visit the official contact page for current phone and email '
@@ -336,7 +336,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Programs and Courses',
     icon: Icons.school_outlined,
-    color: const Color(0xFF2467CF),
+    color: const Color(0xFF006B50),
     intro:
         'Explore SRIT’s published undergraduate, postgraduate and research '
         'programmes. Confirm current offerings and eligibility with the '
@@ -369,7 +369,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Facilities',
     icon: Icons.apartment_outlined,
-    color: const Color(0xFF5279B7),
+    color: const Color(0xFF328261),
     intro:
         'SRIT’s official facilities pages describe campus learning spaces, '
         'student amenities and support services.',
@@ -398,7 +398,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Laboratories and Research Facilities',
     icon: Icons.science_outlined,
-    color: const Color(0xFFDF4E6A),
+    color: const Color(0xFF77AA67),
     intro:
         'SRIT describes department laboratories and an e-Yantra robotics and '
         'embedded-systems laboratory established in association with IIT '
@@ -430,7 +430,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Library',
     icon: Icons.local_library_outlined,
-    color: const Color(0xFF6055A5),
+    color: const Color(0xFF4E946D),
     intro:
         'SRIT’s library supports academic, research and professional '
         'development for undergraduate and postgraduate students.',
@@ -448,7 +448,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Hostel',
     icon: Icons.hotel_outlined,
-    color: const Color(0xFF168A83),
+    color: const Color(0xFF168A5C),
     intro:
         'The official SRIT facilities page describes separate hostels for '
         'women and men, with campus support amenities.',
@@ -466,7 +466,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Transportation',
     icon: Icons.directions_bus_outlined,
-    color: const Color(0xFF168A83),
+    color: const Color(0xFF168A5C),
     intro:
         'SRIT publishes bus-route information through its official contact '
         'page. Check the latest document before planning travel.',
@@ -483,7 +483,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Sports and Activities',
     icon: Icons.sports_basketball_outlined,
-    color: const Color(0xFFEF8A32),
+    color: const Color(0xFF65A653),
     intro:
         'SRIT’s facilities page describes indoor and outdoor sports, physical '
         'education and student activities.',
@@ -507,7 +507,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Internships',
     icon: Icons.work_history_outlined,
-    color: const Color(0xFFEF8A32),
+    color: const Color(0xFF65A653),
     intro:
         'SRIT’s Training and Placement Office describes internship and '
         'industrial-training support among its activities. Check the official '
@@ -526,7 +526,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Student Achievements',
     icon: Icons.emoji_events_outlined,
-    color: const Color(0xFFD8A437),
+    color: const Color(0xFF4A9A75),
     intro:
         'Browse official SRIT announcements for academic, sports, cultural '
         'and technical achievements.',
@@ -544,7 +544,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Clubs and Associations',
     icon: Icons.groups_2_outlined,
-    color: const Color(0xFF6055A5),
+    color: const Color(0xFF4E946D),
     intro:
         'Department associations and student clubs publish their activities '
         'through SRIT’s official news and events pages.',
@@ -564,7 +564,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Gallery',
     icon: Icons.photo_library_outlined,
-    color: const Color(0xFF2388A8),
+    color: const Color(0xFF267F5D),
     intro:
         'Open the official SRIT news and events pages for institution-published '
         'campus photographs and event coverage.',
@@ -584,7 +584,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Faculty and Staff',
     icon: Icons.people_alt_outlined,
-    color: const Color(0xFF5279B7),
+    color: const Color(0xFF328261),
     intro:
         'Faculty details and departmental contacts should be taken from the '
         'official department pages to keep roles and contact information '
@@ -603,7 +603,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Attendance',
     icon: Icons.fact_check_outlined,
-    color: const Color(0xFF168A83),
+    color: const Color(0xFF168A5C),
     intro:
         'Attendance is personal student information. This app has no '
         'administrator-approved SRIT student-record connection configured, '
@@ -621,7 +621,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Internal Marks',
     icon: Icons.grading_outlined,
-    color: const Color(0xFF6055A5),
+    color: const Color(0xFF4E946D),
     intro:
         'Internal marks are personal academic records. They are not stored in '
         'the current app database.',
@@ -638,7 +638,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Exam Results',
     icon: Icons.assessment_outlined,
-    color: const Color(0xFF2467CF),
+    color: const Color(0xFF006B50),
     intro:
         'Examination results are personal academic records. No SRIT results '
         'service is configured in the current app.',
@@ -655,7 +655,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Timetable',
     icon: Icons.calendar_month_outlined,
-    color: const Color(0xFFEF8A32),
+    color: const Color(0xFF65A653),
     intro:
         'Personal class and examination timetables are not connected to the '
         'current app database.',
@@ -672,7 +672,7 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Study Materials',
     icon: Icons.library_books_outlined,
-    color: const Color(0xFF5279B7),
+    color: const Color(0xFF328261),
     intro:
         'Study materials are not connected to the current app. Use official '
         'SRIT course and department pages for published academic resources.',
@@ -691,10 +691,10 @@ final campusSections = <CampusSection>[
   CampusSection(
     title: 'Student Profile',
     icon: Icons.account_circle_outlined,
-    color: const Color(0xFF2388A8),
+    color: const Color(0xFF267F5D),
     intro:
         'This page shows only the name and email provided by the currently '
-        'authenticated SRIT Plus account. Register number, department and year '
+        'authenticated SRIT PORTAL account. Register number, department and year '
         'are not connected.',
     highlights: const [
       CampusHighlight(
@@ -764,7 +764,7 @@ final sritDepartmentSections = <CampusSection>[
   _departmentSection(
     title: 'Computer Science and Engineering',
     icon: Icons.computer_rounded,
-    color: const Color(0xFF2467CF),
+    color: const Color(0xFF006B50),
     introduction:
         'Established in 2002, SRIT’s Computer Science and Engineering '
         'department offers an autonomous programme affiliated with Anna '
@@ -783,7 +783,7 @@ final sritDepartmentSections = <CampusSection>[
   _departmentSection(
     title: 'Electronics and Communication Engineering',
     icon: Icons.memory_rounded,
-    color: const Color(0xFF0F9D8A),
+    color: const Color(0xFF15906F),
     introduction:
         'Established in 2002, the Electronics and Communication Engineering '
         'department offers a four-year B.E. programme affiliated with Anna '
@@ -802,7 +802,7 @@ final sritDepartmentSections = <CampusSection>[
   _departmentSection(
     title: 'Electrical and Electronics Engineering',
     icon: Icons.electric_bolt_rounded,
-    color: const Color(0xFFD8A437),
+    color: const Color(0xFF4A9A75),
     introduction:
         'Established in 2002, the EEE department offers undergraduate and '
         'postgraduate study and is a recognised Anna University research '
@@ -820,7 +820,7 @@ final sritDepartmentSections = <CampusSection>[
   _departmentSection(
     title: 'Mechanical Engineering',
     icon: Icons.precision_manufacturing_rounded,
-    color: const Color(0xFFDF4E6A),
+    color: const Color(0xFF77AA67),
     introduction:
         'Established in 2005, the department offers undergraduate Mechanical '
         'Engineering study spanning engineering fundamentals and practical '
@@ -839,7 +839,7 @@ final sritDepartmentSections = <CampusSection>[
   _departmentSection(
     title: 'Information Technology',
     icon: Icons.devices_rounded,
-    color: const Color(0xFF6055A5),
+    color: const Color(0xFF4E946D),
     introduction:
         'SRIT’s Information Technology department was established in the '
         '2006–2007 academic year. Its official page describes the programme '
@@ -856,7 +856,7 @@ final sritDepartmentSections = <CampusSection>[
   _departmentSection(
     title: 'Artificial Intelligence and Data Science',
     icon: Icons.psychology_outlined,
-    color: const Color(0xFF2388A8),
+    color: const Color(0xFF267F5D),
     introduction:
         'Established in 2025, the Artificial Intelligence and Data Science '
         'department follows an outcome-based curriculum in AI, data science '
@@ -989,7 +989,7 @@ class _StudentDataCard extends StatelessWidget {
             user == null
                 ? 'Sign in and contact the SRIT administrator to connect an '
                       'approved student data source.'
-                : 'Signed in as ${user.email ?? 'your SRIT Plus account'}. '
+                : 'Signed in as ${user.email ?? 'your SRIT PORTAL account'}. '
                       'Contact the SRIT administrator to connect an approved '
                       'student data source.',
           ),

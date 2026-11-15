@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const navy = Color(0xFF123B72);
-  static const blue = Color(0xFF2563EB);
-  static const gold = Color(0xFFD8B15A);
+  static const darkGreen = Color(0xFF004B39);
+  static const primaryGreen = Color(0xFF006B50);
+  static const lightGreen = Color(0xFF77D0B1);
+  static const accentGreen = Color(0xFFE8F5EF);
 
   static ThemeData get light => _buildTheme(Brightness.light);
   static ThemeData get dark => _buildTheme(Brightness.dark);
@@ -11,35 +12,34 @@ class AppTheme {
   static ThemeData _buildTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: blue,
+      seedColor: primaryGreen,
       brightness: brightness,
-      primary: isDark ? const Color(0xFF8DB8FF) : blue,
-      secondary: gold,
-      surface: isDark ? const Color(0xFF121D2B) : Colors.white,
+      primary: isDark ? lightGreen : primaryGreen,
+      secondary: Colors.white,
+      tertiary: isDark ? lightGreen : accentGreen,
+      surface: isDark ? const Color(0xFF10261F) : Colors.white,
     );
-    final outline = isDark ? const Color(0xFF304157) : const Color(0xFFE2EAF4);
+    final outline = isDark ? const Color(0xFF355248) : const Color(0xFFD6E5DD);
 
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: isDark
-          ? const Color(0xFF0B1420)
-          : const Color(0xFFF5F8FC),
+      scaffoldBackgroundColor: isDark ? const Color(0xFF091914) : Colors.white,
       textTheme: ThemeData(brightness: brightness).textTheme.apply(
-        bodyColor: isDark ? const Color(0xFFE4ECF6) : const Color(0xFF26364B),
-        displayColor: isDark ? Colors.white : navy,
+        bodyColor: isDark ? const Color(0xFFEAF4EF) : const Color(0xFF26352D),
+        displayColor: isDark ? Colors.white : darkGreen,
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.surface,
-        foregroundColor: isDark ? Colors.white : navy,
+        foregroundColor: isDark ? Colors.white : darkGreen,
         centerTitle: false,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: isDark ? const Color(0xFF172436) : const Color(0xFFF5F8FC),
+        fillColor: isDark ? const Color(0xFF14271F) : accentGreen,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -70,9 +70,7 @@ class AppTheme {
         ),
       ),
       drawerTheme: DrawerThemeData(
-        backgroundColor: isDark
-            ? const Color(0xFF101A27)
-            : const Color(0xFFFCFDFF),
+        backgroundColor: isDark ? const Color(0xFF10261F) : Colors.white,
       ),
     );
   }

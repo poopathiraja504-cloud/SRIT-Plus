@@ -152,7 +152,7 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
                       const Icon(
                         Icons.wifi_off_rounded,
                         size: 46,
-                        color: Color(0xFF65758A),
+                        color: Color(0xFF5A6B62),
                       ),
                       const SizedBox(height: 14),
                       Text(

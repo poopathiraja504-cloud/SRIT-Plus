@@ -107,18 +107,18 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       title: 'Verify your email',
       subtitle:
           'Use the verification link sent to ${widget.user.email ?? 'your email address'} '
-          'to finish setting up your SRIT Plus account.',
+          'to finish setting up your SRIT PORTAL account.',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Icon(
             Icons.mark_email_unread_outlined,
-            color: Color(0xFF2467CF),
+            color: Color(0xFF006B50),
             size: 52,
           ),
           const SizedBox(height: 16),
           const Text(
-            'Email verification protects your SRIT Plus account. After '
+            'Email verification protects your SRIT PORTAL account. After '
             'verifying, return here and check again.',
             textAlign: TextAlign.center,
           ),
@@ -130,7 +130,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               style: TextStyle(
                 color: _hasError
                     ? Theme.of(context).colorScheme.error
-                    : const Color(0xFF168A50),
+                    : const Color(0xFF168A5C),
               ),
             ),
           ],

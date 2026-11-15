@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:js_interop';
 
 import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
+
+import '../services/activity_analytics_service.dart';
 
 @JS('sritInstallPlatform')
 external JSString _installPlatform();
@@ -68,11 +71,27 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
   }
 
   void _dismiss() {
+    unawaited(
+      ActivityAnalyticsService.instance.logActivity(
+        eventName: 'app_install_interaction',
+        page: 'installation',
+        feature: _platform == 'ios' || _platform == 'ios-tablet'
+            ? 'ios_home_screen'
+            : 'install_pwa',
+      ),
+    );
     _dismissInstall();
     setState(() => _isDismissed = true);
   }
 
   Future<void> _installOrExplain() async {
+    unawaited(
+      ActivityAnalyticsService.instance.logActivity(
+        eventName: 'app_install_interaction',
+        page: 'installation',
+        feature: 'install_pwa',
+      ),
+    );
     if (_canInstall) {
       setState(() => _isPrompting = true);
       final outcome = (await _promptInstall().toDart).toDart;
@@ -85,7 +104,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
       if (outcome == 'accepted' && !_isInstalled) {
         _showMessage(
           'Chrome accepted the request. Follow its confirmation to finish '
-          'adding SRIT Plus.',
+          'adding SRIT PORTAL.',
         );
       } else if (outcome == 'dismissed') {
         _showMessage('Installation was cancelled. No app was installed.');
@@ -111,7 +130,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
             'so this button cannot open a native install prompt right now.',
         'The browser does not disclose a more specific reason. Check that you '
             'are using Chrome on Android, the site is open over HTTPS, and '
-            'SRIT Plus is not already installed.',
+            'SRIT PORTAL is not already installed.',
         'You can still open Chrome’s menu (⋮), choose Install app or Add to '
             'Home screen, and follow the browser instructions if that option '
             'is available.',
@@ -120,8 +139,15 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
   }
 
   Future<void> _showIosInstructions() {
+    unawaited(
+      ActivityAnalyticsService.instance.logActivity(
+        eventName: 'app_install_interaction',
+        page: 'installation',
+        feature: 'ios_home_screen',
+      ),
+    );
     return _showInstructions(
-      title: 'Add SRIT Plus to your Home Screen',
+      title: 'Add SRIT PORTAL to your Home Screen',
       steps: const [
         'Open this page in Safari.',
         'Tap Share (the square with an upward arrow).',
@@ -134,7 +160,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
     required String title,
     required List<String> steps,
     String footer =
-        'The browser adds the SRIT Plus website to your Home Screen; '
+        'The browser adds the SRIT PORTAL website to your Home Screen; '
         'this does not install a separate native app.',
   }) {
     return showDialog<void>(
@@ -184,7 +210,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
     return SafeArea(
       bottom: false,
       child: Material(
-        color: const Color(0xFFEAF2FF),
+        color: const Color(0xFFE8F5EF),
         elevation: 3,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
@@ -208,25 +234,25 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
                   children: [
                     Text(
                       isAndroid
-                          ? 'Install SRIT Plus Android App'
+                          ? 'Install SRIT PORTAL Android App'
                           : isIPad
-                          ? 'Install SRIT Plus on Your iPad'
-                          : 'Install SRIT Plus on Your iPhone',
+                          ? 'Install SRIT PORTAL on Your iPad'
+                          : 'Install SRIT PORTAL on Your iPhone',
                       style: const TextStyle(
-                        color: Color(0xFF123B72),
+                        color: Color(0xFF004B39),
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       isAndroid
-                          ? 'Install the SRIT Plus website as a PWA for quick '
+                          ? 'Install the SRIT PORTAL website as a PWA for quick '
                                 'access. The native Android APK is available '
                                 'separately below the sign-in form.'
                           : 'Access your college portal directly from your '
                                 'Home Screen.',
                       style: const TextStyle(
-                        color: Color(0xFF52657D),
+                        color: Color(0xFF52665B),
                         fontSize: 12,
                         height: 1.4,
                       ),
@@ -237,7 +263,7 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
                         'Website PWA — installed to your Home Screen, not a '
                         'separate native APK.',
                         style: TextStyle(
-                          color: Color(0xFF123B72),
+                          color: Color(0xFF004B39),
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
@@ -247,9 +273,9 @@ class _PlatformInstallBannerState extends State<PlatformInstallBanner> {
                     if (isAndroid && _isInstalled) ...[
                       const SizedBox(height: 8),
                       const Text(
-                        'SRIT Plus website is installed on this device.',
+                        'SRIT PORTAL website is installed on this device.',
                         style: TextStyle(
-                          color: Color(0xFF0F766E),
+                          color: Color(0xFF006B50),
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),

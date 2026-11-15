@@ -71,7 +71,7 @@ class _SignupScreenState extends State<SignupScreen> {
     return AuthPageShell(
       title: 'Create your account',
       subtitle:
-          'Create an SRIT Plus account. This is separate from your college '
+          'Create an SRIT PORTAL account. This is separate from your college '
           'email account.',
       child: Form(
         key: _formKey,

@@ -18,26 +18,74 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="SRIT Plus - campus information for Sri Ramakrishna Institute of Technology, Coimbatore.">
+  <meta name="description" content="Official SRIT PORTAL – Student information, attendance, academic results, timetable, announcements and student services of Sri Ramakrishna Institute of Technology, Coimbatore.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#075BE8">
+  <meta name="theme-color" content="#006B50">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://srit-portal.netlify.app/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SRIT PORTAL">
+  <meta property="og:title" content="SRIT PORTAL | Sri Ramakrishna Institute of Technology">
+  <meta property="og:description" content="Official SRIT PORTAL – Student information, attendance, academic results, timetable, announcements and student services of Sri Ramakrishna Institute of Technology, Coimbatore.">
+  <meta property="og:url" content="https://srit-portal.netlify.app/">
+  <meta property="og:image" content="https://srit-portal.netlify.app/icons/Icon-512.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SRIT PORTAL | Sri Ramakrishna Institute of Technology">
+  <meta name="twitter:description" content="Official SRIT PORTAL – student services of Sri Ramakrishna Institute of Technology, Coimbatore.">
+  <meta name="twitter:image" content="https://srit-portal.netlify.app/icons/Icon-512.png">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="SRIT Plus">
+  <meta name="apple-mobile-web-app-title" content="SRIT PORTAL">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>SRIT Plus</title>
+  <title>SRIT PORTAL | Sri Ramakrishna Institute of Technology</title>
   <link rel="manifest" href="manifest.json">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://www.sritcbe.ac.in/#organization",
+    "name": "Sri Ramakrishna Institute of Technology",
+    "alternateName": "SRIT",
+    "url": "https://www.sritcbe.ac.in/",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://srit-portal.netlify.app/icons/Icon-512.png",
+      "width": 512,
+      "height": 512
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Pachapalayam (Post), Perur Chettipalayam",
+      "addressLocality": "Coimbatore",
+      "addressRegion": "Tamil Nadu",
+      "postalCode": "641010",
+      "addressCountry": "IN"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SRIT PORTAL",
+    "url": "https://srit-portal.netlify.app/",
+    "publisher": {
+      "@id": "https://www.sritcbe.ac.in/#organization"
+    }
+  }
+  </script>
 </head>
 <body>
   <script>
     (() => {
-      const dismissalKey = 'srit-plus-install-dismissed-v2';
+      const dismissalKey = 'srit-portal-install-dismissed-v2';
       let deferredInstallPrompt = null;
       let installed = false;
       let dismissedInSession = false;
@@ -107,7 +155,7 @@
           notifyFlutter();
           return choice.outcome;
         } catch (error) {
-          console.error('Could not open the SRIT Plus install prompt:', error);
+          console.error('Could not open the SRIT PORTAL install prompt:', error);
           notifyFlutter();
           return 'error';
         }
@@ -134,12 +182,12 @@
       }
 
       if (!window.isSecureContext) {
-        console.error('SRIT Plus installation requires a secure HTTPS context.');
+        console.error('SRIT PORTAL installation requires a secure HTTPS context.');
       } else if ('serviceWorker' in navigator) {
         navigator.serviceWorker
           .register('firebase-messaging-sw.js', { scope: '/' })
           .catch((error) => {
-            console.error('Could not register the SRIT Plus service worker:', error);
+            console.error('Could not register the SRIT PORTAL service worker:', error);
           });
       } else {
         console.error('This browser does not support service workers.');

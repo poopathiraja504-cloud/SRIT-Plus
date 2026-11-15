@@ -31,5 +31,46 @@ service cloud.firestore {
         && request.resource.data.updatedAt == request.time;
       allow delete: if signedIn() && request.auth.uid == userId;
     }
+
+    match /users/{userId}/activity/{activityId} {
+      allow read, update, delete: if false;
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly([
+          'eventName', 'timestamp', 'platform', 'page', 'feature'
+        ])
+        && request.resource.data.keys().hasAll([
+          'eventName', 'timestamp', 'platform', 'page', 'feature'
+        ])
+        && request.resource.data.eventName in [
+          'login_button_click',
+          'google_sign_in_attempt',
+          'google_sign_in_success',
+          'google_sign_in_failure',
+          'email_login_attempt',
+          'email_login_success',
+          'email_login_failure',
+          'dashboard_visit',
+          'attendance_visit',
+          'results_visit',
+          'timetable_visit',
+          'profile_visit',
+          'settings_visit',
+          'navigation_click',
+          'app_install_interaction',
+          'logout'
+        ]
+        && request.resource.data.timestamp == request.time
+        && request.resource.data.platform in ['web', 'android', 'ios', 'other']
+        && request.resource.data.page in [
+          'login', 'dashboard', 'attendance', 'results', 'timetable',
+          'profile', 'settings', 'navigation', 'installation', 'other'
+        ]
+        && request.resource.data.feature in [
+          'email', 'google', 'dashboard', 'attendance', 'results', 'timetable',
+          'profile', 'settings', 'navigation', 'install_pwa', 'download_apk',
+          'ios_home_screen', 'other'
+        ];
+    }
   }
 }

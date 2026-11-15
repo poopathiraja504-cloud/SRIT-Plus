@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://srit-portal.netlify.app/sitemap.xml
